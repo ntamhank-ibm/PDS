@@ -19,6 +19,18 @@ def getSupportedDistros():
     package_search = PackageSearch.load()
     return json.dumps(package_search.getSupportedDistros())
 
+@app.route('/pds/searchPackages')
+def searchPackages():
+    package_search = PackageSearch.load()
+    try:
+        search_term = str(request.args.get('search_term', ''))
+        exact_match = request.args.get('exact_match', False)
+        search_bit_flag = int(request.args.get('search_bit_flag', '0'))
+    except Exception as ex:
+        LOGGER.error('Error in searchPackages with search parameters: %s', str(ex))
+
+    return package_search.searchPackages(search_term, exact_match, search_bit_flag)
+    
 @app.route('/pds/getPackagesFromURL')
 def getPackagesFromURL():
     '''

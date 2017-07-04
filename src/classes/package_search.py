@@ -81,6 +81,50 @@ class PackageSearch:
 
         return json_data
 
+    def searchPackages(self, search_term, exact_match, search_bit_flag):
+        
+        LOGGER.debug('searchPackages: In function')
+        search_term = urllib.unquote(search_term)
+
+        LOGGER.debug('searchPackages: search_term : %s', search_term)
+        LOGGER.debug('searchPackages: exact_match : %s', exact_match)
+        
+        search_packages_begin_with = str(search_term).endswith('*')
+        search_packages_end_with = str(search_term).startswith('*')
+        search_anywhere_in_packages = (search_packages_begin_with and search_packages_begin_with) or ('*' not in str(search_term))
+        
+        search_term = search_term.replace('*', '')
+        search_term_ucase = search_term.upper()
+
+        if exact_match:
+            preliminary_results = filter(lambda s: s['P'] == search_term, self.INSTANCE.package_data)
+        elif search_anywhere_in_packages:
+            preliminary_results = filter(lambda s: search_term_ucase in s['S'], self.INSTANCE.package_data)
+        elif search_packages_begin_with:
+            preliminary_results = filter(lambda s: str(s['S']).startswith(search_term_ucase), self.INSTANCE.package_data)
+        elif search_packages_end_with:
+            preliminary_results = filter(lambda s: str(s['S']).endswith(search_term_ucase), self.INSTANCE.package_data)
+
+        LOGGER.debug('searchPackages: Search on package name : %s', len(preliminary_results))
+
+        final_results = filter(lambda s: ((s['B'] & search_bit_flag) > 0), preliminary_results)
+
+        LOGGER.debug('searchPackages: Search on bit rep : %s', len(final_results))
+
+        LOGGER.debug('searchPackages: Applied pagination changes')
+
+        final_data = {
+            'total_packages': len(final_results),
+            'packages': final_results
+        }
+
+        LOGGER.debug('searchPackages: Sending final data to calling function')
+
+        LOGGER.debug(final_data)        
+
+        return json.dumps(final_data)
+
+        
     def getPackagesFromURL(self, package_name, exact_match, page_number, page_size, sort_key = 'name', reverse = 0, distro_bit_search_mapping_vals = 0):
         '''
         This API will try to read from JSON files for various distros 

@@ -4,14 +4,9 @@
  */ 
 var HomeController = function($scope) {
 
-    $(document).ready(function() {
-        $('.page_header').html('<h3>Package Distro Search (PDS)</h3><a href="#/faq" id="faq_link">FAQ</a>');
-     });
-
     // List of supported OS and versions
     $scope.supported_oses_list = [];
     $scope.supported_oses_list_keys = [];
-    $scope.disclaimer_page = { name: 'disclaimer', url: '/static/js/views/disclaimer.html'};
     $scope.page_size = 10;
     $scope.number_of_items = 10;
     $scope.page_number = 1;
@@ -21,6 +16,10 @@ var HomeController = function($scope) {
     $scope.display_column_list = [];
     $scope.prev_url = '';
     $scope.selected_distros = [];
+    
+    $scope.all = []; 
+    $scope.os_list = []; 
+    $scope.current_set = []; 
     
     // Get the package information data from the server and process it for display
     $.ajax({
@@ -33,6 +32,12 @@ var HomeController = function($scope) {
                 $scope.supported_oses_list = data;
             }
             $scope.supported_oses_list_keys = Object.keys($scope.supported_oses_list);
+            $scope.all.push({type:"All",value:false}); 
+            $scope.os_list.push({type:"All",value:false});
+            for (supported_os_name in $scope.supported_oses_list_keys)
+            {
+                $scope.os_list.push({type:$scope.supported_oses_list_keys[supported_os_name],value:false});
+            }
             
             $scope.$apply();
 
@@ -121,26 +126,6 @@ var HomeController = function($scope) {
         $scope.page_size = num;
         $scope.currentPage = 1; // reset to first page
         $scope.fetchPackages(null, $scope.exact_match, $scope.page_size, 1);
-    };
-    
-    $scope.checkAll = function(distro_type, my_name){
-        if (distro_type === undefined){
-            //this means "check_all" checkbox is clicked
-            var should_check = $('#check__all').prop("checked");
-            // this section addresses parent check all
-            for(distro_type in $scope.supported_oses_list){
-                $('#'+ $scope.textToVariableNaming(distro_type) +'__all').prop("checked", should_check);
-                for(distro_version in $scope.supported_oses_list[distro_type]){
-                    $('#'+ $scope.textToVariableNaming(distro_type) + '___' + $scope.textToVariableNaming(distro_version)).prop("checked", should_check);
-                }
-            }
-        }else{
-            // It means distro specific check-all
-            var should_check_specific = $('#'+ $scope.textToVariableNaming(distro_type) +'__all').prop("checked");
-            for(distro_version in $scope.supported_oses_list[distro_type]){
-                $('#' + $scope.textToVariableNaming(distro_type) + '___' + $scope.textToVariableNaming(distro_version)).prop("checked", should_check_specific);
-            }
-        }       
     };
 
     $scope.formatString = function(input_string, variable_obj){
@@ -246,16 +231,6 @@ var HomeController = function($scope) {
         });
     };
     
-    $scope.is_distro_selected = function(){
-        should_continue = false;
-        $('.flavor_with_version').each(function () {
-            if(this.checked){
-                should_continue = true;
-            }
-        });
-        return should_continue;
-    };
-
     $scope.highlightPage = function(){
         var other_pages = $('#page_number_'+$scope.page_number).siblings();
 
@@ -271,6 +246,63 @@ var HomeController = function($scope) {
         $('#page_number_'+$scope.page_number).addClass('active');
     };
 
+    $scope.is_distro_selected = function(){
+        at_least_one_distro_selected = false;
+        for(rec in $scope.os_list){
+            if($scope.os_list[rec].value){
+                at_least_one_distro_selected = true;
+                break;
+            }
+        }
+        if(at_least_one_distro_selected){
+            $scope.error_message = '';
+        }
+        return at_least_one_distro_selected;
+    };
+
+    $scope.tickUntick = function(tickevent){
+        var tickState = true;
+        if(tickevent !== undefined && tickevent.target.id === 'chkAll')
+        {
+            var tickState = $('#chkAll').prop("checked");
+            for(rec in $scope.os_list){
+                $scope.os_list[rec].value = tickState;
+            }
+        }
+        else
+        {
+            for(rec in $scope.os_list){
+                if($scope.os_list[rec].type !== 'All'){
+                    if(!$scope.os_list[rec].value){
+                        tickState = false;
+                        break;}
+                }
+            }
+            //$scope.all[0].value = tickState; 
+            $scope.os_list[0].value = tickState; 
+        }
+        $scope.is_distro_selected(); //this would clear error message just in case
+    };
+    
+    $scope.searchPackages = function(pevent, pcalled_from, psearch_exact) {
+        if(pevent !== undefined && pevent !== null){
+            var keyCode = pevent.which || pevent.keyCode;
+            if (keyCode !== 13) {
+               return;
+            }
+        }
+        if(!$scope.is_distro_selected()){
+            $scope.error_message = 'No Distros selected!';
+        }
+        else{
+            $scope.error_message = '';
+        }
+        
+        ///TODO Here
+        
+        
+    };
+    
     $scope.fetchPackages = function(my_event, exact_match, page_size, page_number, sort_key, sort_reverse){
         if(my_event !== undefined && my_event !== null){
             var keyCode = my_event.which || my_event.keyCode;
@@ -281,14 +313,6 @@ var HomeController = function($scope) {
         if(!$scope.is_distro_selected()){
             $(".sub_menu_items_search").find("input[type=text]").blur();
             $scope.error_message = 'No Distros selected!';
-            $( "#error_popup" ).dialog({
-                modal: true,
-                buttons: {
-                  Ok: function() {
-                    $( this ).dialog( "close" );
-                  }
-                }
-            });
         }
         $scope.current_page = (page_number !== undefined)?page_number:1;
         page_size = (page_size === undefined)? $scope.page_size: page_size;
