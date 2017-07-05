@@ -14,7 +14,7 @@
         </span>
       </div>
       <div class="input-group searchbuttons">
-        <input type="text" id="searchtext" class="form-control" style="width:200px;" autocomplete="on" placeholder="Enter Package Name" ng-model="package_name" ng-keyup="searchPackages(null,'searchtext',false);" />
+        <input type="text" id="searchtext" class="form-control" style="width:200px;" autocomplete="on" placeholder="Enter Package Name" ng-model="package_name" />
         <input type="button" id="fuzzySearch" class="btn btn-small btn-primary" value="Search Fuzzy" title="package Name in search should be more than two characters long" ng-click="searchPackages(null, 'fuzzySearch',false);" ng-disabled="package_name.length <= 2" />
         <a class="btn btn-small btn-info"  href="javascript:void(0);" ng-click="searchPackages(null, 'exactSearch', true);" ng-hide="package_name.length <= 0">Search Exact</a>
       </div>
@@ -22,19 +22,26 @@
         <summary><label id="help_text">Enter the name of the package or at least three characters to enable pattern search.  Wildcard ('*') can be used either before or after the search keywords. </label></summary>
         <summary><label id="error_message" ng-model="error_message"  ng-show="error_message.length > 0" style="color:red;">{{ error_message }}</label></summary>
       </div> 
-      <!--
-      <pre>{{ }}</pre>
+      <!--  
+      <pre>{{ }}</pre> 
+      <pre>{{ package_name }}</pre>
+      <pre>{{ itemsPerPage }}</pre>
+      <pre>{{ pagedItems | json }}</pre>
       -->
+      
     </div>
   </div>
 </div>
 <!-- Begin page content -->
-<div class="container-fluid" ng-show="current_set.length > 0">
+<div class="container" style="align:center;" ng-show="no_results_found.length > 0">
+  <h6 class="text-danger">{{no_results_found}}</h6>
+</div>
+<div class="container-fluid" ng-show="packages_all.length > 0">
   <div class="row">
     <div class="col-sm-3 sidebar" > <!--sidebar  style="margin-top:200px;" -->
       <div class="list-group">
         <label class="list-group-item active">Refine Results:</label>
-        <input id="refinesearch" type="text" class="list-group-item form-control" name="msg" placeholder="Enter package name">
+        <input id="refinesearch" type="text" class="list-group-item form-control" style="height:50px;" ng-model="refine_package_name" ng-change="filterResults()" placeholder="Enter package name">
         <label class="list-group-item active">Filter by version:</label>
         <label class="list-group-item list-group-item-info">Ubuntu</label>
         <label class="list-group-item"><input type="checkbox" value="">16.04</label>
@@ -65,40 +72,64 @@
       </div>
     </div>
     <div class="col-sm-9 main" >
-      <div class="table-responsive">
+      <div class="table-responsive" ng-show="pagedItems.length == 0">
+        <h6 class="text-danger">No packages found matching {{refine_package_name}}.  Try changing the filters.</h6>
+      </div>
+      <div class="table-responsive"  ng-show="pagedItems.length > 0">
         <table class="table table-striped">
           <thead>
+            <tr>
+              <td colspan="4">
+                <div>
+                  <span>Records per page:&nbsp;<select ng-model="itemsPerPage" ng-options="x for x in page_options"  ng-change="filterResults()" ></span>
+                </div>
+              </td>
+            </tr>
             <tr class="info">
-              <th>Package Name</th>
-              <th>Version</th>
-              <th>Distro</th>
-              <th>Description</th>
+              <th>Package Name<a ng-click="sort_by('P')"><i class="icon-sort"></i></a></th>
+              <th>Version<a ng-click="sort_by('V')"><i class="icon-sort"></i></a></th>
+              <th>Distro<a ng-click="sort_by('D')"><i class="icon-sort"></i></a></th>
+              <th></th> <!-- <th>Description<a ng-click="sort_by('id')"><i class="icon-sort"></i></a></th> -->
             </tr>
           </thead>
+          <tfoot>
+            <tr class="info">
+              <th>Package Name<a ng-click="sort_by('P')"><i class="icon-sort"></i></a></th>
+              <th>Version<a ng-click="sort_by('V')"><i class="icon-sort"></i></a></th>
+              <th>Distro<a ng-click="sort_by('D')"><i class="icon-sort"></i></a></th>
+              <th></th> <!-- <th>Description<a ng-click="sort_by('id')"><i class="icon-sort"></i></a></th> -->
+            </tr>
+            <tr>
+              <td colspan="4">
+                <div> <!--<div class="pagination pull-right"> -->
+                    <ul class="pagination" ng-show="pagedItems.length > 1">
+                        <li ng-class="{disabled: currentPage == 0}">
+                            <a href ng-click="currentPage = 1; prevPage()"><< First</a>
+                        </li>
+                        <li ng-class="{disabled: currentPage == 0}">
+                            <a href ng-click="prevPage()">< Prev</a>
+                        </li>
+                        <li ng-repeat="n in range(pagedItems.length, currentPage, currentPage + gap)" ng-class="{active: n == currentPage}" ng-click="setPage()">
+                            <a href ng-bind="n + 1">1</a>
+                        </li>
+                        <li ng-class="{disabled: currentPage == pagedItems.length - 1}">
+                            <a href ng-click="nextPage()">Next ></a>
+                        </li>
+                        <li ng-class="{disabled: currentPage == pagedItems.length - 1}">
+                            <a href ng-click="currentPage = pagedItems.length - 1; nextPage()">Last >></a>
+                        </li>
+                    </ul>
+                    <h6>Found <b>{{ filteredItems.length }}</b> packages. Displaying Page <b>{{ currentPage + 1 }}</b> of <b>{{ pagedItems.length }}</b></h6>
+                </div>
+              </td>
+            </tr>
+          </tfoot>
           <tbody>
-            <tr>
-              <th>package1</th>
-              <th>1.1</th>
-              <th>RHEL(6.8, 7.3)<br/>Ubuntu(16.04, 16.10)</th>
-              <th>Description</th>
-            </tr>
-            <tr>
-              <th>package1</th>
-              <th>1.2</th>
-              <th>RHEL(7.1, 7.2, 7.3)<br/>Ubuntu(17.04)</th>
-              <th>Description</th>
-            </tr>
-            <tr>
-              <th>package2</th>
-              <th>1.1</th>
-              <th>RHEL(6.8, 7.3)<br/>Ubuntu(16.04, 16.10)</th>
-              <th>Description</th>
-            </tr>
-            <tr>
-              <th>package2</th>
-              <th>1.2</th>
-              <th>RHEL(7.1, 7.2, 7.3)<br/>Ubuntu(17.04)</th>
-              <th>Description</th>
+            <tr ng-repeat="item in pagedItems[currentPage]">
+              <td>{{item.P}}</td>
+              <td>{{item.V}}</td>
+              <td>{{getDisplayDistro(item)}}</td>
+              <td></td>
             </tr>
           </tbody>
         </table>

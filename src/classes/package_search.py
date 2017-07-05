@@ -96,7 +96,7 @@ class PackageSearch:
         search_term = search_term.replace('*', '')
         search_term_ucase = search_term.upper()
 
-        if exact_match:
+        if (exact_match.lower() == 'true'):
             preliminary_results = filter(lambda s: s['P'] == search_term, self.INSTANCE.package_data)
         elif search_anywhere_in_packages:
             preliminary_results = filter(lambda s: search_term_ucase in s['S'], self.INSTANCE.package_data)
