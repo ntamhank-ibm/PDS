@@ -58,7 +58,7 @@ body {
     z-index: 1000;
     display: block;
     margin-top: 10px;
-    padding-left: 40px;
+    padding-left: 10px;
     overflow-x: hidden;
     overflow-y: auto; /* Scrollable contents if viewport is shorter than content. */
     /*background-color: #f5f5f5;
@@ -93,8 +93,8 @@ body {
 }
 @media (min-width: 768px) {
   .main {
-    padding-right: 40px;
-    padding-left: 40px;
+    padding-right: 10px;
+    padding-left: 10px;
   }
 }
 .main .page-header {
@@ -121,4 +121,23 @@ body {
 }
 .nopadding {
     padding:0px;
+}
+
+.customfont {
+    font-size: 12px;
+}
+
+ .overlay {
+    background: grey;
+    position: absolute;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    left: 0;
+    opacity: 0.5;
+    z-index: 100000;
+}
+
+.distroversioncheck {
+    margin-right:5px;
 }

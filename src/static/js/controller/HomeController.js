@@ -18,6 +18,7 @@ var HomeController = function($scope) {
     
     $scope.all = []; 
     $scope.os_list = []; 
+    $scope.os_versions_list = []; 
     $scope.current_set = []; 
     $scope.search_bit_flag = 0;
     $scope.filteredItems = [];
@@ -32,6 +33,7 @@ var HomeController = function($scope) {
     $scope.page_options = [5, 10, 20,30, 40, 50];
     $scope.itemsPerPage = 10;
     $scope.no_results_found = '';
+    $scope.loading = false;
     
     // Get the package information data from the server and process it for display
     $.ajax({
@@ -43,16 +45,23 @@ var HomeController = function($scope) {
                 console.log(e);
                 $scope.supported_oses_list = data;
             }
-            $scope.supported_oses_list_keys = Object.keys($scope.supported_oses_list);
-            $scope.all.push({type:"All",value:false}); 
-            $scope.os_list.push({type:"All",value:false});
-            for (supported_os_name in $scope.supported_oses_list_keys)
-            {
-                $scope.os_list.push({type:$scope.supported_oses_list_keys[supported_os_name],value:false});
-            }
-            
-            $scope.$apply();
-
+                $scope.supported_oses_list_keys = Object.keys($scope.supported_oses_list);
+                $scope.all.push({type:"All",value:false}); 
+                $scope.os_list.push({type:"All",value:false});
+                var osversions = [];
+                for (supported_os_name in $scope.supported_oses_list_keys)
+                {
+                    $scope.os_list.push({type:$scope.supported_oses_list_keys[supported_os_name],value:false});
+                }
+                for(os_name in $scope.supported_oses_list){
+                    osversions = Object.keys($scope.supported_oses_list[os_name]);
+                    version_array = []
+                    for(i = 0;i < osversions.length;i++ ){
+                        version_array.push({type:osversions[i], value:true});
+                    }
+                    $scope.os_versions_list[os_name] = version_array;
+                }
+                $scope.$apply();
             },
             failure: function(data){
                 console.log("Not able to fetch Supported Distros information.");                
@@ -66,7 +75,7 @@ var HomeController = function($scope) {
     
     $scope.request_complete = true;
     
-    $scope.show_loader = false;
+    //$scope.loading = false;
     $scope.toggle = false;
     $scope.empty_resultset_message = '';
     $scope.$watch('toggle', function(){
@@ -160,6 +169,20 @@ var HomeController = function($scope) {
         $scope.is_distro_selected(); //this would clear error message just in case
     };
     
+    $scope.searchPackagesFromText = function(pevent) {
+        if(pevent !== undefined && pevent !== null){
+            var keyCode = pevent.which || pevent.keyCode;
+            if (keyCode !== 13) {
+               return;
+            }
+        }
+        if($scope.package_name.length >= 3){
+            $scope.searchPackages();
+        }
+        else{
+            return;
+        }
+    };
     $scope.searchPackages = function(pevent, pcalled_from, psearch_exact) {
         if(pevent !== undefined && pevent !== null){
             var keyCode = pevent.which || pevent.keyCode;
@@ -174,6 +197,7 @@ var HomeController = function($scope) {
         else{
             $scope.error_message = '';
         }
+        $scope.loading = true;
         var search_bit_flag = 0;
         for(rec in $scope.os_list){
             if($scope.os_list[rec].value){
@@ -182,9 +206,10 @@ var HomeController = function($scope) {
                 }
             }
         }
+        $scope.error_message = '';
         $scope.exact_match = psearch_exact;
+        $scope.refine_package_name = '';
         $scope.callSearchAPI();
-        
     };
     
     $scope.callSearchAPI = function(){
@@ -195,7 +220,7 @@ var HomeController = function($scope) {
         if ($scope.prev_url == '' || $scope.prev_url != api_request_url){
             $scope.prev_url = api_request_url;
         }else{
-            $scope.show_loader = false;
+            $scope.loading = false;
             return;
         }
 
@@ -226,13 +251,13 @@ var HomeController = function($scope) {
                     $scope.no_results_found = '';
                 }
                 $scope.refine_package_name = '';
-                $scope.filterResults();
+                $scope.filterResults(0);
                 //TODO: Show loader
-                $scope.show_loader = false;
+                $scope.loading = false;
                 $scope.$apply();
             },
             failure: function(data){
-                $scope.show_loader = false;
+                $scope.loading = false;
                 $scope.no_results_found = 'Your search - "'+ decodeURI($scope.package_name) +'" - did not match any package.'
                 $scope.$apply();
             },
@@ -245,15 +270,87 @@ var HomeController = function($scope) {
     };
     
     
-    $scope.filterResults = function(){
-        //TODO: Refine the results by $scope.refine_package_name
-        if($scope.refine_package_name === ''){
+    $scope.filterResults = function(refineCheckEvent){
+        if(refineCheckEvent !== undefined && refineCheckEvent === 0){
+            console.log('Filtering from main search');
+            //This is called from main search - so use AS IS
             $scope.filteredItems = $scope.packages_all;
         }
         else{
-            $scope.filteredItems = $scope.packages_all.filter(function (pkg) {
-                return pkg.P.includes($scope.refine_package_name);
-            });
+            var distro_version_filter = false;
+            for(os_name in $scope.os_versions_list){
+                for(os_ver_rec in $scope.os_versions_list[os_name]){
+                    if($scope.os_versions_list[os_name][os_ver_rec].value){
+                        distro_version_filter = true;
+                        break;
+                    }
+                }
+            }
+            if(distro_version_filter == false && $scope.refine_package_name.length == 0){
+                console.log('Refine text is empty and refine distros unticked');
+                $scope.filteredItems = $scope.packages_all;
+            }
+            else if(distro_version_filter == false && $scope.refine_package_name.length > 0){
+                console.log('Refine text is PROVIDED and refine distros unticked');
+                $scope.filteredItems = $scope.packages_all.filter(function (pkg) {
+                    return pkg.P.includes($scope.refine_package_name);
+                });
+            }
+            else if(distro_version_filter == true && $scope.refine_package_name.length > 0){
+                console.log('Refine text is PROVIDED and refine distros ticked');
+                $scope.filteredItems = $scope.packages_all.filter(function (pkg) {
+                    pfound = pkg.P.includes($scope.refine_package_name);
+                    if(!pfound){return false;}
+                    os_found = false;
+                    for(os_name in $scope.os_versions_list){
+                        //console.log(os_name); //OS Name
+                        if(pkg[os_name] === undefined){
+                            continue; //current package does not belong to OS being checked so continue
+                        }
+                        for(os_ver_rec in $scope.os_versions_list[os_name]){
+                            //console.log($scope.os_versions_list['SUSE Package Hub'][os_ver_rec].type); //OS Version
+                            if($scope.os_versions_list[os_name][os_ver_rec].value){
+                                //OS Ver is ticked
+                                if(pkg[os_name].includes($scope.os_versions_list[os_name][os_ver_rec].type)){
+                                    os_found = true;
+                                    break; //Current package does belong to at least one of the ticked OS Version
+                                }
+                                else{
+                                    continue; //Requested OS Version is not available in this OS of the package
+                                }
+                            }
+                        }
+                    }
+
+                    return os_found;
+                });
+            }
+            else if(distro_version_filter == true && $scope.refine_package_name.length == 0){
+                console.log('Refine text is empty and refine distros ticked');
+                $scope.filteredItems = $scope.packages_all.filter(function (pkg) {
+                    os_found = false;
+                    for(os_name in $scope.os_versions_list){
+                        //console.log(os_name); //OS Name
+                        if(pkg[os_name] === undefined){
+                            continue; //current package does not belong to OS being checked so continue
+                        }
+                        for(os_ver_rec in $scope.os_versions_list[os_name]){
+                            //console.log($scope.os_versions_list['SUSE Package Hub'][os_ver_rec].type); //OS Version
+                            if($scope.os_versions_list[os_name][os_ver_rec].value){
+                                //OS Ver is ticked
+                                if(pkg[os_name].includes($scope.os_versions_list[os_name][os_ver_rec].type)){
+                                    os_found = true;
+                                    break; //Current package does belong to at least one of the ticked OS Version
+                                }
+                                else{
+                                    continue; //Requested OS Version is not available in this OS of the package
+                                }
+                            }
+                        }
+                    }
+                    return os_found;
+                });
+            }
         }
         if ($scope.sortingOrder !== '') {
             $scope.filteredItems = $filter('orderBy')($scope.filteredItems, $scope.sortingOrder, $scope.reverse);
@@ -330,7 +427,7 @@ var HomeController = function($scope) {
         var search_bit_rep = 0;
         $('.flavor_with_version').each(function () {
             if(this.checked){
-                $scope.show_loader = true;
+                $scope.loading = true;
                 var self = {};
                 self.package_name = encodeURIComponent($scope.package_name);
                 distro_string_id = $(this).attr('id'); //Id is 'encoded_os_name' and 'encoded_version' seperated 3 underscores
@@ -450,7 +547,7 @@ var HomeController = function($scope) {
         if ($scope.prev_url == '' || $scope.prev_url != new_url){
             $scope.prev_url = new_url;
         }else{
-            $scope.show_loader = false;
+            $scope.loading = false;
             return;
         }
 
@@ -474,7 +571,7 @@ var HomeController = function($scope) {
 
                 $scope.packages_all = packages_all;
                 $scope.recalculatePagination(package_count);
-                $scope.show_loader = false;
+                $scope.loading = false;
                 if(package_count <= 0){
                     $scope.setEmptyMessage('Your search - "'+ unescape(json_data[0].package_name) +'" - did not match any package.');                    
                 }
@@ -484,7 +581,7 @@ var HomeController = function($scope) {
                 $scope.$apply();
             },
             failure: function(data){
-                $scope.show_loader = false;
+                $scope.loading = false;
                 $scope.setEmptyMessage('Your search - "'+ unescape(json_data[0].package_name) +'" - did not match any package.');
                 addDisclaimer(null, false, false);
             },
@@ -493,7 +590,7 @@ var HomeController = function($scope) {
                 //$scope.setEmptyMessage('Your search - "'+ unescape(json_data[0].package_name) +'" - did not match any package.');
                 $scope.setEmptyMessage('');
                 addDisclaimer(null, false, false);
-                $scope.show_loader = false;
+                $scope.loading = false;
                 $( "#error_popup" ).dialog({
                     modal: true,
                     buttons: {
@@ -518,7 +615,7 @@ var HomeController = function($scope) {
             }else{
                 $scope.empty_resultset_message = "";
             }
-            $scope.show_loader = false;
+            $scope.loading = false;
             $scope.$apply();
         });
     };
