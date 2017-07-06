@@ -57,7 +57,7 @@ var HomeController = function($scope) {
                     osversions = Object.keys($scope.supported_oses_list[os_name]);
                     version_array = []
                     for(i = 0;i < osversions.length;i++ ){
-                        version_array.push({type:osversions[i], value:true});
+                        version_array.push({type:osversions[i], value:true, count:0});
                     }
                     $scope.os_versions_list[os_name] = version_array;
                 }
@@ -246,13 +246,12 @@ var HomeController = function($scope) {
                     for(var i = 0; i < package_data.length; i++){
                         package_data[i].P = decodeURI(package_data[i].P);
                         packages_all.push(package_data[i]);
-                    };
+                    }
                     $scope.packages_all = packages_all;
                     $scope.no_results_found = '';
                 }
-                $scope.refine_package_name = '';
-                $scope.filterResults(0);
-                //TODO: Show loader
+                $scope.computePackageCount();
+                $scope.filterResults();
                 $scope.loading = false;
                 $scope.$apply();
             },
@@ -267,8 +266,26 @@ var HomeController = function($scope) {
             },
             timeout: 60000 // sets timeout to 60 seconds
           });
-    };
+    }
     
+    $scope.computePackageCount = function(){
+        for(i = 0;i < $scope.packages_all.length;i++) {
+            pkg = $scope.packages_all[0];
+            for(os_name in $scope.os_versions_list){
+                //console.log(os_name); //OS Name
+                if(pkg[os_name] === undefined){
+                    continue; //current package does not belong to OS being checked so continue
+                }
+                else{
+                    for(os_ver_rec in $scope.os_versions_list[os_name]){
+                        if(pkg[os_name].includes($scope.os_versions_list[os_name][os_ver_rec].type)){
+                            $scope.os_versions_list[os_name][os_ver_rec].count += 1;
+                        }
+                    }
+                }
+            }
+        }
+    }
     
     $scope.filterResults = function(refineCheckEvent){
         if(refineCheckEvent !== undefined && refineCheckEvent === 0){
@@ -280,24 +297,18 @@ var HomeController = function($scope) {
             var distro_version_filter = false;
             for(os_name in $scope.os_versions_list){
                 for(os_ver_rec in $scope.os_versions_list[os_name]){
+                    //$scope.os_versions_list[os_name][os_ver_rec].count = 0;
                     if($scope.os_versions_list[os_name][os_ver_rec].value){
                         distro_version_filter = true;
-                        break;
                     }
                 }
             }
-            if(distro_version_filter == false && $scope.refine_package_name.length == 0){
-                console.log('Refine text is empty and refine distros unticked');
-                $scope.filteredItems = $scope.packages_all;
+            if(distro_version_filter == false){
+                console.log('Refine distros unticked');
+                $scope.filteredItems = [];
             }
-            else if(distro_version_filter == false && $scope.refine_package_name.length > 0){
-                console.log('Refine text is PROVIDED and refine distros unticked');
-                $scope.filteredItems = $scope.packages_all.filter(function (pkg) {
-                    return pkg.P.includes($scope.refine_package_name);
-                });
-            }
-            else if(distro_version_filter == true && $scope.refine_package_name.length > 0){
-                console.log('Refine text is PROVIDED and refine distros ticked');
+            else if(distro_version_filter == true){
+                console.log('Refine: ' + $scope.refine_package_name);
                 $scope.filteredItems = $scope.packages_all.filter(function (pkg) {
                     pfound = pkg.P.includes($scope.refine_package_name);
                     if(!pfound){return false;}
@@ -307,43 +318,15 @@ var HomeController = function($scope) {
                         if(pkg[os_name] === undefined){
                             continue; //current package does not belong to OS being checked so continue
                         }
-                        for(os_ver_rec in $scope.os_versions_list[os_name]){
-                            //console.log($scope.os_versions_list['SUSE Package Hub'][os_ver_rec].type); //OS Version
-                            if($scope.os_versions_list[os_name][os_ver_rec].value){
-                                //OS Ver is ticked
-                                if(pkg[os_name].includes($scope.os_versions_list[os_name][os_ver_rec].type)){
-                                    os_found = true;
-                                    break; //Current package does belong to at least one of the ticked OS Version
-                                }
-                                else{
-                                    continue; //Requested OS Version is not available in this OS of the package
-                                }
-                            }
-                        }
-                    }
-
-                    return os_found;
-                });
-            }
-            else if(distro_version_filter == true && $scope.refine_package_name.length == 0){
-                console.log('Refine text is empty and refine distros ticked');
-                $scope.filteredItems = $scope.packages_all.filter(function (pkg) {
-                    os_found = false;
-                    for(os_name in $scope.os_versions_list){
-                        //console.log(os_name); //OS Name
-                        if(pkg[os_name] === undefined){
-                            continue; //current package does not belong to OS being checked so continue
-                        }
-                        for(os_ver_rec in $scope.os_versions_list[os_name]){
-                            //console.log($scope.os_versions_list['SUSE Package Hub'][os_ver_rec].type); //OS Version
-                            if($scope.os_versions_list[os_name][os_ver_rec].value){
-                                //OS Ver is ticked
-                                if(pkg[os_name].includes($scope.os_versions_list[os_name][os_ver_rec].type)){
-                                    os_found = true;
-                                    break; //Current package does belong to at least one of the ticked OS Version
-                                }
-                                else{
-                                    continue; //Requested OS Version is not available in this OS of the package
+                        else{
+                            for(os_ver_rec in $scope.os_versions_list[os_name]){
+                                //console.log($scope.os_versions_list[os_name][os_ver_rec].type); //OS Version
+                                if($scope.os_versions_list[os_name][os_ver_rec].value){
+                                    //OS Ver is ticked
+                                    if(pkg[os_name].includes($scope.os_versions_list[os_name][os_ver_rec].type)){
+                                        os_found = true;
+                                        //$scope.os_versions_list[os_name][os_ver_rec].count += 1;
+                                    }
                                 }
                             }
                         }
@@ -353,7 +336,7 @@ var HomeController = function($scope) {
             }
         }
         if ($scope.sortingOrder !== '') {
-            $scope.filteredItems = $filter('orderBy')($scope.filteredItems, $scope.sortingOrder, $scope.reverse);
+            //$scope.filteredItems = $filter('orderBy')($scope.filteredItems, $scope.sortingOrder, $scope.reverse);
         }
         $scope.currentPage = 0;
         $scope.n = 0;

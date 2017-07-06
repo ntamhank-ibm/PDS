@@ -53,7 +53,7 @@
         <span ng-repeat="os_name in os_list" class="list-group customfont" >
           <label class="list-group-item list-group-item-info" ng-if="os_name.type !== 'All' && os_name.value" >{{ os_name.type }}</label>
           <div ng-repeat="os_ver_name in os_versions_list[os_name.type]" ng-if="os_name.type !== 'All'  && os_name.value" >
-            <label class="list-group-item"><input type="checkbox" class="distroversioncheck" ng-model="os_ver_name.value" ng-click="filterResults($event)">{{os_ver_name.type.replace(os_name.type,'')}}</label>
+            <label class="list-group-item"><input type="checkbox" class="distroversioncheck" ng-model="os_ver_name.value" ng-click="filterResults($event)">{{os_ver_name.type}}&nbsp - ({{ os_ver_name.count }})</label>
           </div>
         </span>
       </div>
