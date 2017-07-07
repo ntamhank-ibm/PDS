@@ -3,7 +3,6 @@
     <div class="col-md-12">
       <div class="input_group distrolist" >
         <label>Select linux distribution:</label>
-        <!--<span><label><input id="chkAll" type="checkbox" value="">All</label></span>-->
         <span ng-repeat="all_rec in all">
           <span ng-repeat="os_name in os_list">
             <input type="checkbox" ng-model="all_rec.value" ng-if="os_name.type === 'All'"  ng-click="tickUntick($event);" id="chkAll" />
@@ -22,17 +21,6 @@
         <summary><label id="help_text">Enter the name of the package or at least three characters to enable pattern search.  Wildcard ('*') can be used either before or after the search keywords. </label></summary>
         <summary><label id="error_message" ng-model="error_message"  ng-show="error_message.length > 0" style="color:red;">{{ error_message }}</label></summary>
       </div> 
-      <!--  
-      <pre>{{ }}</pre> 
-      <pre>{{ package_name }}</pre>
-      <pre>{{ itemsPerPage }}</pre>
-      <pre>{{ pagedItems | json }}</pre>
-      <pre>{{ supported_oses_list }}</pre>
-      <pre>{{ os_versions_list | json }}</pre>
-      
-      <pre>{{ os_versions_list['Ubuntu'] | json }}</pre>
-      <pre>{{ os_versions_list['SUSE Package Hub'] | json }}</pre>
-      <pre>{{ os_versions_list['Suse Linux Enterprise Server'] | json }}</pre>-->
     </div>
   </div>
 </div>
@@ -53,7 +41,7 @@
         <span ng-repeat="os_name in os_list" class="list-group customfont" >
           <label class="list-group-item list-group-item-info" ng-if="os_name.type !== 'All' && os_name.value" >{{ os_name.type }}</label>
           <div ng-repeat="os_ver_name in os_versions_list[os_name.type]" ng-if="os_name.type !== 'All'  && os_name.value" >
-            <label class="list-group-item"><input type="checkbox" class="distroversioncheck" ng-model="os_ver_name.value" ng-click="filterResults($event)">{{os_ver_name.type}}&nbsp - ({{ os_ver_name.count }})</label>
+            <label class="list-group-item"><input type="checkbox" class="distroversioncheck" ng-model="os_ver_name.value" ng-click="filterResults($event)">{{os_ver_name.type}}&nbsp - ({{ os_ver_name.filtercount }}/{{ os_ver_name.count }})</label>
           </div>
         </span>
       </div>
@@ -73,46 +61,46 @@
               </td>
             </tr>
             <tr class="info">
-              <th>Package Name<a ng-click="sort_by('P')"><i class="icon-sort"></i></a></th>
-              <th>Version<a ng-click="sort_by('V')"><i class="icon-sort"></i></a></th>
-              <th>Distro<a ng-click="sort_by('D')"><i class="icon-sort"></i></a></th>
+              <th>Package Name<a ng-click="sort_by('S')"><i ng-class="sortIcon('S')"></i></a></th>
+              <th>Version<a ng-click="sort_by('V')"><i ng-class="sortIcon('V')"></i></a></th>
+              <th>Distro<a ng-click="sort_by('D')"><i ng-class="sortIcon('D')"></i></a></th>
               <th></th> <!-- <th>Description<a ng-click="sort_by('id')"><i class="icon-sort"></i></a></th> -->
             </tr>
           </thead>
           <tfoot>
             <tr class="info">
-              <th>Package Name<a ng-click="sort_by('P')"><i class="icon-sort"></i></a></th>
-              <th>Version<a ng-click="sort_by('V')"><i class="icon-sort"></i></a></th>
-              <th>Distro<a ng-click="sort_by('D')"><i class="icon-sort"></i></a></th>
+              <th>Package Name<a ng-click="sort_by('S')"><i ng-class="sortIcon('S')"></i></a></th>
+              <th>Version<a ng-click="sort_by('V')"><i ng-class="sortIcon('V')"></i></a></th>
+              <th>Distro<a ng-click="sort_by('D')"><i ng-class="sortIcon('D')"></i></a></th>
               <th></th> <!-- <th>Description<a ng-click="sort_by('id')"><i class="icon-sort"></i></a></th> -->
             </tr>
             <tr>
               <td colspan="4">
                 <div> <!--<div class="pagination pull-right"> -->
                     <ul class="pagination" ng-show="pagedItems.length > 1">
-                        <li ng-class="{disabled: currentPage == 0}">
-                            <a href ng-click="currentPage = 1; prevPage()"><< First</a>
+                        <li ng-class="{disabled: currentPage <= 0}">
+                          <a href ng-click="firstPage()">< First</a>
                         </li>
                         <li ng-class="{disabled: currentPage == 0}">
-                            <a href ng-click="prevPage()">< Prev</a>
+                          <a href ng-click="prevPage()">< Prev</a>
                         </li>
-                        <li ng-repeat="n in range(pagedItems.length, currentPage, currentPage + gap)" ng-class="{active: n == currentPage}" ng-click="setPage()">
-                            <a href ng-bind="n + 1">1</a>
+                        <li ng-repeat="n in range(pagedItems.length, currentPage, currentPage + gap) " ng-class="{active: n == currentPage}" ng-click="$parent.currentPage = n;">
+                          <a href ng-bind="n + 1">1</a>
                         </li>
-                        <li ng-class="{disabled: currentPage == pagedItems.length - 1}">
-                            <a href ng-click="nextPage()">Next ></a>
+                        <li ng-class="{disabled: (currentPage) == pagedItems.length - 1}">
+                          <a href ng-click="nextPage()">Next ></a>
                         </li>
-                        <li ng-class="{disabled: currentPage == pagedItems.length - 1}">
-                            <a href ng-click="currentPage = pagedItems.length - 1; nextPage()">Last >></a>
+                        <li ng-class="{disabled: (currentPage) >= pagedItems.length - 1}">
+                          <a href ng-click="lastPage()">Last >></a>
                         </li>
                     </ul>
-                    <h6>Found <b>{{ filteredItems.length }}</b> packages. Displaying Page <b>{{ currentPage + 1 }}</b> of <b>{{ pagedItems.length }}</b></h6>
+                    <span>Found <b>{{ filteredItems.length }}</b> packages. Displaying Page <b>{{ currentPage + 1 }}</b> of <b>{{ pagedItems.length }}</b></span>
                 </div>
               </td>
             </tr>
           </tfoot>
           <tbody>
-            <tr ng-repeat="item in pagedItems[currentPage]">
+            <tr ng-repeat="item in pagedItems[currentPage] | orderBy:sort.sortingOrder:sort.reverse">
               <td>{{item.P}}</td>
               <td>{{item.V}}</td>
               <td>{{getDisplayDistro(item)}}</td>

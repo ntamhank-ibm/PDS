@@ -28,7 +28,7 @@ var HomeController = function($scope) {
     $scope.gap = 3;  
     $scope.refine_package_name = '';
     $scope.package_name = '';
-    $scope.sortingOrder = "";
+    $scope.sortingOrder = "S";
     $scope.reverse = false;
     $scope.page_options = [5, 10, 20,30, 40, 50];
     $scope.itemsPerPage = 10;
@@ -57,7 +57,7 @@ var HomeController = function($scope) {
                     osversions = Object.keys($scope.supported_oses_list[os_name]);
                     version_array = []
                     for(i = 0;i < osversions.length;i++ ){
-                        version_array.push({type:osversions[i], value:true, count:0});
+                        version_array.push({type:osversions[i], value:true, count:0, filtercount:0});
                     }
                     $scope.os_versions_list[os_name] = version_array;
                 }
@@ -87,16 +87,29 @@ var HomeController = function($scope) {
             $scope.reverse = !$scope.reverse;
 
         $scope.sortingOrder = newSortingOrder;
-
-        // icon setup
-        $('th i').each(function(){
-            // icon reset
-            $(this).removeClass().addClass('icon-sort');
-        });
-        if ($scope.reverse)
-            $('th.'+newSortingOrder+' i').removeClass().addClass('icon-chevron-up');
-        else
-            $('th.'+newSortingOrder+' i').removeClass().addClass('icon-chevron-down');
+        $scope.orderBy();
+        $scope.currentPage = 0;
+        $scope.n = 0;
+        $scope.groupToPages();
+    };
+    
+    $scope.orderBy = function() {
+       $scope.filteredItems.sort(function(a, b){
+            var nameA=a[$scope.sortingOrder], nameB=b[$scope.sortingOrder]
+            if(!$scope.reverse){
+                if (nameA < nameB) //sort string ascending
+                    return -1;
+                if (nameA > nameB)
+                    return 1;
+            }
+            else{
+                if (nameA < nameB) //sort string ascending
+                    return 1;
+                if (nameA > nameB)
+                    return -1;
+            }
+            return 0 //default return value (no sorting)
+        })
     };
 
     $scope.setPage = function () {
@@ -109,25 +122,34 @@ var HomeController = function($scope) {
         }
     };
     
+    $scope.lastPage = function () {
+        $scope.currentPage = $scope.pagedItems.length - 1;
+    };
+    
     $scope.prevPage = function () {
         if ($scope.currentPage > 0) {
             $scope.currentPage--;
         }
     };
+    
+    $scope.firstPage = function () {
+        $scope.currentPage= 0;
+    };
       
      $scope.range = function (size, start, end) {
-        var ret = [];        
-                      
+        var ret = [];
+        console.log(size, start, end);
+
         if (size < end) {
-            end = size;
-            start = size-$scope.gap;
-            /*if(start < -1){
-                start = -1;
-            }*/
+          end = size;
+          start = size - $scope.gap;
         }
         for (var i = start; i < end; i++) {
+          if(i >= 0){
             ret.push(i);
-        }        
+          }
+        }
+        console.log(ret);
         return ret;
     };
 
@@ -208,7 +230,6 @@ var HomeController = function($scope) {
         }
         $scope.error_message = '';
         $scope.exact_match = psearch_exact;
-        $scope.refine_package_name = '';
         $scope.callSearchAPI();
     };
     
@@ -250,7 +271,7 @@ var HomeController = function($scope) {
                     $scope.packages_all = packages_all;
                     $scope.no_results_found = '';
                 }
-                $scope.computePackageCount();
+                $scope.computePackageCount(false); //Counting packages as they are found from the server
                 $scope.filterResults();
                 $scope.loading = false;
                 $scope.$apply();
@@ -268,18 +289,38 @@ var HomeController = function($scope) {
           });
     }
     
-    $scope.computePackageCount = function(){
-        for(i = 0;i < $scope.packages_all.length;i++) {
-            pkg = $scope.packages_all[0];
+    $scope.computePackageCount = function(countFiltered){
+        for(os_name in $scope.os_versions_list){
+            for(os_ver_rec in $scope.os_versions_list[os_name]){
+                if(!countFiltered){
+                    $scope.os_versions_list[os_name][os_ver_rec].count = 0; 
+                }
+                $scope.os_versions_list[os_name][os_ver_rec].filtercount = 0; //Always reset filtered count
+            }
+        }
+        
+        temp_packages = $scope.packages_all;
+        if(countFiltered){
+            temp_packages = $scope.filteredItems;
+        }
+        
+        for(i = 0;i < temp_packages.length;i++) {
+            pkg = temp_packages[i];
+            //console.log(JSON.stringify(pkg));
             for(os_name in $scope.os_versions_list){
-                //console.log(os_name); //OS Name
                 if(pkg[os_name] === undefined){
                     continue; //current package does not belong to OS being checked so continue
                 }
                 else{
                     for(os_ver_rec in $scope.os_versions_list[os_name]){
+                        //console.log(JSON.stringify($scope.os_versions_list[os_name][os_ver_rec]));
                         if(pkg[os_name].includes($scope.os_versions_list[os_name][os_ver_rec].type)){
-                            $scope.os_versions_list[os_name][os_ver_rec].count += 1;
+                            if(countFiltered){
+                                $scope.os_versions_list[os_name][os_ver_rec].filtercount += 1;
+                            }
+                            else{
+                                $scope.os_versions_list[os_name][os_ver_rec].count += 1;
+                            }
                         }
                     }
                 }
@@ -297,7 +338,6 @@ var HomeController = function($scope) {
             var distro_version_filter = false;
             for(os_name in $scope.os_versions_list){
                 for(os_ver_rec in $scope.os_versions_list[os_name]){
-                    //$scope.os_versions_list[os_name][os_ver_rec].count = 0;
                     if($scope.os_versions_list[os_name][os_ver_rec].value){
                         distro_version_filter = true;
                     }
@@ -308,7 +348,6 @@ var HomeController = function($scope) {
                 $scope.filteredItems = [];
             }
             else if(distro_version_filter == true){
-                console.log('Refine: ' + $scope.refine_package_name);
                 $scope.filteredItems = $scope.packages_all.filter(function (pkg) {
                     pfound = pkg.P.includes($scope.refine_package_name);
                     if(!pfound){return false;}
@@ -325,7 +364,7 @@ var HomeController = function($scope) {
                                     //OS Ver is ticked
                                     if(pkg[os_name].includes($scope.os_versions_list[os_name][os_ver_rec].type)){
                                         os_found = true;
-                                        //$scope.os_versions_list[os_name][os_ver_rec].count += 1;
+                                        return os_found;
                                     }
                                 }
                             }
@@ -335,8 +374,11 @@ var HomeController = function($scope) {
                 });
             }
         }
+        
+        $scope.computePackageCount(true); //Count the results per distro version after filter is applied
+        
         if ($scope.sortingOrder !== '') {
-            //$scope.filteredItems = $filter('orderBy')($scope.filteredItems, $scope.sortingOrder, $scope.reverse);
+            $scope.orderBy();
         }
         $scope.currentPage = 0;
         $scope.n = 0;
@@ -372,285 +414,21 @@ var HomeController = function($scope) {
         return distros;
     };
     
-    /* Old functions */
-    $scope.fetchPackages = function(my_event, exact_match, page_size, page_number, sort_key, sort_reverse){
-        if(my_event !== undefined && my_event !== null){
-            var keyCode = my_event.which || my_event.keyCode;
-            if (keyCode !== 13) {
-               return;
+    $scope.sortIcon = function(display_field) {
+        if(display_field === $scope.sortingOrder){
+            if($scope.reverse){
+                return "icon-chevron-up";
+            }
+            else{
+                return "icon-chevron-down";
             }
         }
-        if(!$scope.is_distro_selected()){
-            $(".sub_menu_items_search").find("input[type=text]").blur();
-            $scope.error_message = 'No Distros selected!';
+        else
+        {
+            return "icon-sort";
         }
-        $scope.current_page = (page_number !== undefined)?page_number:1;
-        page_size = (page_size === undefined)? $scope.page_size: page_size;
-        page_number = (page_number === undefined)? 0: page_number;
-        prev_page = $scope.page_number;
-        $scope.exact_match = (exact_match !== undefined)?exact_match:$scope.exact_match;
-        $scope.page_size = (page_size !== undefined)?page_size:$scope.page_size;
-        $scope.page_number = (page_number !== undefined)?page_number:$scope.page_number;
-        $scope.sort_key = (sort_key !== undefined)?sort_key:$scope.sort_key;
-        $scope.sort_reverse = (sort_reverse !== undefined)?sort_reverse:$scope.sort_reverse;
-
-        $scope.highlightPage();
-
-        // this method is responsible for making a API call to server to fetch required data and render it on UI.
-        if(exact_match === undefined){
-            exact_match = false;
-        }       
-        if($scope.package_name.length <= 2 && exact_match !== true){
-            return;
-        }       
-
-        $scope.selected_distros = [];
-        $scope.display_column_list = [];
-        $scope.distroIdToVersionMap = {};
-        var search_bit_rep = 0;
-        $('.flavor_with_version').each(function () {
-            if(this.checked){
-                $scope.loading = true;
-                var self = {};
-                self.package_name = encodeURIComponent($scope.package_name);
-                distro_string_id = $(this).attr('id'); //Id is 'encoded_os_name' and 'encoded_version' seperated 3 underscores
-                distro_reference_string_name = $(this).attr('reference_name'); //reference name is 'os name' and 'version' seperated by -_-
-                distro_string_array = distro_string_id.split('___');  //[0] has 'encoded_os_name' and [1] has 'encoded_version'
-                distro_reference_string_array = distro_reference_string_name.split('-_-'); //distro_reference_string_array[0] contains 'os name' and [1] contains 'version' and [2] contains bit_rep
-
-                self.display_name = '';
-                if(distro_reference_string_array.length == 3 && distro_string_array.length == 2){
-                    self.name = distro_reference_string_array[0]; //os name
-                    self.display_name = distro_reference_string_array[0]; //os name
-                    self.version = distro_reference_string_array[1]; //os version
-                    search_bit_rep += $scope.supported_oses_list[self.name][distro_reference_string_array[1]];
-                    $scope.selected_distros.push(self);
-                    $scope.display_column_list[self.name] = self;
-                    if($scope.distroIdToVersionMap[self.name] === undefined){
-                        $scope.distroIdToVersionMap[self.name] = {};
-                    }
-                    $scope.distroIdToVersionMap[self.name][distro_reference_string_array[1]] = distro_reference_string_array[2];
-                }
-            }
-        });
-
-        display_column_list_temp = Object.keys($scope.display_column_list).map(function(key) {
-            return $scope.display_column_list[key];
-        });
-        $scope.display_column_list = display_column_list_temp;
-        $scope.fetchDataFromUrl($scope.formatString($scope.selected_distros), search_bit_rep);
     };
-
-    $scope.readableDistroName = function(distro_name){
-        return distro_name.replace(/__/, ' ').replace(/_/g,' ');
-    };
-
-    $scope.textToVariableNaming = function(distro_name){
-        return distro_name.replace(/\./g, '_').replace(/ /g, '_');
-    };
-
-    $scope.getPages = function(){
-        pages = [];
-        var i = $scope.page_number + 1;
-        if($scope.page_count <= 3 || i == 1){
-            for(var c = 1; c <= $scope.page_count && c <= 3; c++){
-                pages.push(c);
-            }
-        }else if(i >= $scope.page_count){
-            pages.push($scope.page_count-2);
-            pages.push($scope.page_count-1);
-            pages.push($scope.page_count);
-        }else{
-            pages.push(i-1);
-            pages.push(i);
-            pages.push(i+1);
-        }
-
-        return pages;
-    };
-
-    $scope.getDistroVersion = function(distro, supported_os_name){
-        bit_rep_dec = distro.B;
-        requested_distros = $scope.distroIdToVersionMap[supported_os_name];
-        distro_versions = []
-        for(var requested_version in requested_distros){
-            if((bit_rep_dec & requested_distros[requested_version]) > 0){
-                distro_versions.push(requested_version);
-            }
-        }
-        return distro_versions.join(' / ');
-    };
-
-    $scope.getSelectedPage = function(){
-        $scope.fetchPackages(null, exact_match, page_size, iter);
-    };
-
-    //pagination logic for rendering page display on page change.
-    $scope.recalculatePagination = function(package_count){
-        $scope.totalItems = package_count;
-        $scope.page_count = Math.ceil($scope.totalItems*1.0/$scope.page_size);
-        $scope.currentPage = 1;
-        $scope.maxSize = 5; // Number of pager buttons to show
-        $scope.number_of_items = $scope.page_size;
-    };
-    
-    $scope.setItemsPerPage = function(num) {
-        $scope.page_size = num;
-        $scope.currentPage = 1; // reset to first page
-        $scope.fetchPackages(null, $scope.exact_match, $scope.page_size, 1);
-    };
-
-    $scope.formatString = function(input_string, variable_obj){
-        for (var attr in variable_obj) {
-            if(attr !== undefined){
-                input_string = input_string.replace("{" + attr + "}", variable_obj[attr]);              
-            }
-        }
-        return input_string;
-    };
-
-    $scope.fetchDataFromUrl = function(json_data, search_bit_rep){
-        if(json_data.length < 1){
-            return;
-        }
-        if ($scope.sort_key === undefined){
-            $scope.sort_key = 'name';
-        }
-
-        if($scope.sort_reverse === undefined){
-            $scope.sort_reverse = 0;
-        }
-
-        bit_search = (search_bit_rep !== undefined)?search_bit_rep:0;
-
-        $scope.page_number = ($scope.page_number <= 0)? 1: $scope.page_number;
-        package_name = (json_data.length > 0) ? json_data[0].package_name: '';
-        $scope.page_size = ($scope.page_size !== undefined)?$scope.page_size:10;
-        new_url = 'getPackagesFromURL?page_size='+$scope.page_size+'&sort_key='+$scope.sort_key+'&reverse='+ $scope.sort_reverse +'&page_number='+$scope.page_number+'&exact_match='+ $scope.exact_match +'&package_name='+package_name+'&search_string='+bit_search;
-        if ($scope.prev_url == '' || $scope.prev_url != new_url){
-            $scope.prev_url = new_url;
-        }else{
-            $scope.loading = false;
-            return;
-        }
-
-        // Get the package information data from the server and process it for display
-        $.ajax({
-            url: new_url,
-            success: function(data){
-        try{
-                    distro_data = JSON.parse(data);
-        }catch(e){
-            console.log(e);
-            distro_data = data;
-        }
-                package_count = distro_data.total_packages;
-                package_data = distro_data.packages;
-                packages_all = [];
-                for(var i = 0; i < package_data.length; i++){
-                    package_data[i].name = unescape(package_data[i].name);
-                    packages_all.push(package_data[i]);
-                };
-
-                $scope.packages_all = packages_all;
-                $scope.recalculatePagination(package_count);
-                $scope.loading = false;
-                if(package_count <= 0){
-                    $scope.setEmptyMessage('Your search - "'+ unescape(json_data[0].package_name) +'" - did not match any package.');                    
-                }
-
-                addDisclaimer(document.getElementById('main_table_container'), $scope.packages_all.length > 0);
-                $scope.highlightPage();
-                $scope.$apply();
-            },
-            failure: function(data){
-                $scope.loading = false;
-                $scope.setEmptyMessage('Your search - "'+ unescape(json_data[0].package_name) +'" - did not match any package.');
-                addDisclaimer(null, false, false);
-            },
-            error: function(req, response_status){
-                $scope.error_message = 'There was a issue contacting server please try again later..';
-                //$scope.setEmptyMessage('Your search - "'+ unescape(json_data[0].package_name) +'" - did not match any package.');
-                $scope.setEmptyMessage('');
-                addDisclaimer(null, false, false);
-                $scope.loading = false;
-                $( "#error_popup" ).dialog({
-                    modal: true,
-                    buttons: {
-                      Ok: function() {
-                        $( this ).dialog( "close" );
-                      }
-                    }
-                });
-                $scope.$apply();
-            },
-            timeout: 60000 // sets timeout to 60 seconds
-          });
-    };
-
-    $scope.distroIdToVersionMap = {};
-
-    $scope.setEmptyMessage = function(msg){   
-        // If there is no data returned by API call to server set No result message.
-        $(document).ajaxStop(function() {
-            if($scope.packages_all.length <= 0){
-                $scope.empty_resultset_message = msg;               
-            }else{
-                $scope.empty_resultset_message = "";
-            }
-            $scope.loading = false;
-            $scope.$apply();
-        });
-    };
-    
-    $scope.highlightPage = function(){
-        var other_pages = $('#page_number_'+$scope.page_number).siblings();
-
-        for (var i = 0; i < other_pages.length; i++){
-            $(other_pages[i]).removeClass('active');
-        }
-
-        if($scope.page_number == 1){
-            $('#page_number_0').addClass('active');
-        }else if($scope.page_number == ($scope.page_count)){
-            $('#page_number_'+($scope.page_count+1)).addClass('active');
-        }
-        $('#page_number_'+$scope.page_number).addClass('active');
-    };
-    
-    $scope.sort_by_old = function(sort_key){
-        // Modify the sort key based on selection.
-        $scope.sort_key = sort_key;
-        $scope.sort_reverse = ! $scope.sort_reverse;
-        $scope.exact_match = exact_match;
-        $scope.page_size = page_size;
-        $scope.page_count = page_count;
-        
-        // also change the sorting icon
-        $('.sorting-arrows').each(function(){
-            $(this).addClass('fa-sort');
-            $(this).removeClass('fa-sort-desc');
-            $(this).removeClass('fa-sort-asc');
-        });
-
-        // Now update the selected element to reflect sorting icon and tooltip
-        $('i[name=package_'+ $scope.sort_key +']').each(function(){
-            if(!$scope.sort_reverse){
-                $(this).addClass('fa-sort-desc');
-                $(this).removeClass('fa-sort-asc');
-                $(this).removeClass('fa-sort');
-                $(this).attr("title",'Sort Descending');                
-            }else{
-                $(this).addClass('fa-sort-asc');
-                $(this).removeClass('fa-sort-desc');
-                $(this).removeClass('fa-sort');
-                $(this).attr("title",'Sort Ascending');
-            }                
-        });
-
-        $scope.fetchPackages(null, exact_match, page_size, 1, $scope.sort_key, $scope.sort_reverse);
-    };
-    
+   
 };
 
 
