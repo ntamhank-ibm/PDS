@@ -138,7 +138,6 @@ var HomeController = function($scope) {
       
      $scope.range = function (size, start, end) {
         var ret = [];
-        console.log(size, start, end);
 
         if (size < end) {
           end = size;
@@ -149,7 +148,6 @@ var HomeController = function($scope) {
             ret.push(i);
           }
         }
-        console.log(ret);
         return ret;
     };
 
@@ -169,7 +167,7 @@ var HomeController = function($scope) {
 
     $scope.tickUntick = function(tickevent){
         var tickState = true;
-        if(tickevent !== undefined && tickevent.target.id === 'chkAll')
+        if(tickevent.target.id === 'chkAll')
         {
             var tickState = $('#chkAll').prop("checked");
             for(rec in $scope.os_list){
@@ -188,6 +186,25 @@ var HomeController = function($scope) {
             //$scope.all[0].value = tickState; 
             $scope.os_list[0].value = tickState; 
         }
+        /*if(tickevent !== undefined && tickevent.target.id === 'chkAll')
+        {
+            var tickState = $('#chkAll').prop("checked");
+            for(rec in $scope.os_list){
+                $scope.os_list[rec].value = tickState;
+            }
+        }
+        else
+        {
+            for(rec in $scope.os_list){
+                if($scope.os_list[rec].type !== 'All'){
+                    if(!$scope.os_list[rec].value){
+                        tickState = false;
+                        break;}
+                }
+            }
+            //$scope.all[0].value = tickState; 
+            $scope.os_list[0].value = tickState; 
+        }*/
         $scope.is_distro_selected(); //this would clear error message just in case
     };
     
@@ -430,7 +447,5 @@ var HomeController = function($scope) {
     };
    
 };
-
-
 
 myApp.controller('HomeController', HomeController);

@@ -1,4 +1,6 @@
-var myApp = angular.module("pds", ['ngRoute']); 
+var myApp = angular.module("pds", ['ngRoute','ui.bootstrap']); 
+
+//,'ui.bootstrap'
 
 myApp.config(
 	[ '$routeProvider', function($routeProvider) {

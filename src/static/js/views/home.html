@@ -1,16 +1,23 @@
 <div class="container distrofilters">
   <div class="row">
     <div class="col-md-12">
+      <div>
+        <pre>{{ os_list[0] | json }}</pre>
+        <pre>{{ os_list[1] | json }}</pre>
+        <accordion>
+          <accordion-group heading="{{os_list[os_name].type}}" ng-repeat="os_name in os_list">
+            <ul>
+              <li ng-repeat="os_ver_name in os_versions_list[os_name.type]">{{os_ver_name.type}}&nbsp - ({{ os_ver_name.filtercount }}/{{ os_ver_name.count }})</li>
+            </ul>
+          </accordion-group>   
+        </accordion>
+      </div>
       <div class="input_group distrolist" >
         <label>Select linux distribution:</label>
-        <span ng-repeat="all_rec in all">
           <span ng-repeat="os_name in os_list">
-            <input type="checkbox" ng-model="all_rec.value" ng-if="os_name.type === 'All'"  ng-click="tickUntick($event);" id="chkAll" />
-            <input type="checkbox" ng-model="os_name.value"  ng-checked="all_rec.value" ng-if="os_name.type !== 'All'" ng-click="tickUntick($event);" />
-            <label for="{{os_name.type}}"  ng-if="os_name.type !== 'All'">{{os_name.type}}</label>
-            <label for="{{all_rec.type}}"  ng-if="os_name.type === 'All'" >{{os_name.type}}</label>
+            <label><input type="checkbox" ng-model="os_name.value" ng-if="os_name.type === 'All'"  ng-click="tickUntick($event);" id="chkAll" >
+            <input type="checkbox" ng-model="os_name.value"  ng-checked="os_name.value" ng-if="os_name.type !== 'All'" ng-click="tickUntick($event);">{{os_name.type}}</label>
           </span>
-        </span>
       </div>
       <div class="input-group searchbuttons">
         <input type="text" id="searchtext" class="form-control" style="width:200px;" autocomplete="on" placeholder="Enter Package Name" ng-model="package_name" ng-keyup="searchPackagesFromText($event)" />
@@ -25,7 +32,7 @@
   </div>
 </div>
 <!-- Begin page content -->
-<div class="container" style="align:center;" ng-show="no_results_found.length > 0">
+<div class="container" ng-show="no_results_found.length > 0">
   <h6 class="text-danger">{{no_results_found}}</h6>
 </div>
 <div ng-show="loading" class="loading" style="padding-left:49%"><div ng-show="loading" class="overlay"></div><img  src="/static/images/ajax-loader.gif"></div>
@@ -35,6 +42,15 @@
       <div class="list-group">
         <label class="list-group-item-lg active">Refine your results:</label>
         <input id="refinesearch" type="text" class="list-group-item form-control" style="height:50px;" ng-model="refine_package_name" ng-change="filterResults()" placeholder="Refine text">
+      </div>
+      <div>
+        <accordion>
+          <accordion-group heading="{{os_name.type}}" ng-repeat="os_name in os_list">
+            <ul>
+              <li ng-repeat="os_ver_name in os_versions_list[os_name.type]">{{os_ver_name.type}}&nbsp - ({{ os_ver_name.filtercount }}/{{ os_ver_name.count }})</li>
+            </ul>
+          </accordion-group>   
+        </accordion>
       </div>
       <div class="list-group">
         <label class="list-group-item-lg active">Filter distribution:</label>
@@ -76,8 +92,8 @@
             </tr>
             <tr>
               <td colspan="4">
-                <div> <!--<div class="pagination pull-right"> -->
-                    <ul class="pagination" ng-show="pagedItems.length > 1">
+                <div>
+                    <ul class="pagination" style="margin-top:0px;margin-bottom:0px;" ng-show="pagedItems.length > 1">
                         <li ng-class="{disabled: currentPage <= 0}">
                           <a href ng-click="firstPage()">< First</a>
                         </li>
@@ -94,7 +110,7 @@
                           <a href ng-click="lastPage()">Last >></a>
                         </li>
                     </ul>
-                    <span>Found <b>{{ filteredItems.length }}</b> packages. Displaying Page <b>{{ currentPage + 1 }}</b> of <b>{{ pagedItems.length }}</b></span>
+                    <p style="margin-top:0px;margin-bottom:0px;">Found <b>{{ filteredItems.length }}</b> packages. Displaying Page <b>{{ currentPage + 1 }}</b> of <b>{{ pagedItems.length }}</b></p>
                 </div>
               </td>
             </tr>
