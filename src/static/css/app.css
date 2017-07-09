@@ -142,3 +142,16 @@ body {
     margin-right:5px !important;
 }
 
+.refinemarginlefttenpx {
+    margin-left: 10px;
+}
+
+.distrofilterheader {
+    color: rgb(51, 51, 51);
+    background-color: #336699;
+    font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+    font-size: 12px;
+    /*font-weight: 500;*/
+    line-height: 13px;
+
+}
