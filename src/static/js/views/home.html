@@ -48,7 +48,7 @@
         <h6 class="text-danger">No packages are found matching the filters.  Try changing the filters or perform a new search.</h6>
       </div>
       <div class="table-responsive customfont"  ng-show="pagedItems.length > 0">
-        <table class="table table-striped table-condensed table-hover">
+        <table class="table table-condensed table-hover">
           <thead>
             <tr>
               <td colspan="4">
@@ -57,7 +57,7 @@
                 </div>
               </td>
             </tr>
-            <tr class="info">
+            <tr class="table-info">
               <th>Package Name<a ng-click="sort_by('S')"><i ng-class="sortIcon('S')"></i></a></th>
               <th>Version<a ng-click="sort_by('V')"><i ng-class="sortIcon('V')"></i></a></th>
               <th>Distro<a ng-click="sort_by('D')"><i ng-class="sortIcon('D')"></i></a></th>
@@ -65,7 +65,7 @@
             </tr>
           </thead>
           <tfoot>
-            <tr class="info">
+            <tr class="table-info">
               <th>Package Name<a ng-click="sort_by('S')"><i ng-class="sortIcon('S')"></i></a></th>
               <th>Version<a ng-click="sort_by('V')"><i ng-class="sortIcon('V')"></i></a></th>
               <th>Distro<a ng-click="sort_by('D')"><i ng-class="sortIcon('D')"></i></a></th>
