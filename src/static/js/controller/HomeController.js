@@ -34,6 +34,7 @@ var HomeController = function($scope) {
     $scope.itemsPerPage = 10;
     $scope.no_results_found = '';
     $scope.loading = false;
+    $scope.os_wise_accordion = [];
     
     // Get the package information data from the server and process it for display
     $.ajax({
@@ -49,9 +50,12 @@ var HomeController = function($scope) {
                 $scope.all.push({type:"All",value:false}); 
                 $scope.os_list.push({type:"All",value:false});
                 var osversions = [];
+                var tempName = '';
                 for (supported_os_name in $scope.supported_oses_list_keys)
                 {
                     $scope.os_list.push({type:$scope.supported_oses_list_keys[supported_os_name],value:false});
+                    tempName = $scope.supported_oses_list_keys[supported_os_name];
+                    $scope.os_wise_accordion.push({ tempName : false});
                 }
                 for(os_name in $scope.supported_oses_list){
                     osversions = Object.keys($scope.supported_oses_list[os_name]);
@@ -446,6 +450,22 @@ var HomeController = function($scope) {
         }
     };
    
+    $scope.toggle_child_filters = function(os_name) {
+        $scope.os_wise_accordion[os_name] = !$scope.os_wise_accordion[os_name];
+    };
+    
+    $scope.display_child_filters = function(os_name) {
+        return $scope.os_wise_accordion[os_name];
+    };
+    
+    $scope.tickUntickFilters = function(os_name) {
+        //TODO: Update the values of all distro versions of given os_name in array = 
+        
+    }
+    
+    $scope.child_filters_checked = function(os_name) {
+        //TODO: Return whether the checkbox should be ticked or unticked
+    }
 };
 
 myApp.controller('HomeController', HomeController);

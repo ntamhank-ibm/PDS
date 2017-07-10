@@ -30,49 +30,49 @@
     <div class="col-sm-2 sidebar" > <!--sidebar  style="margin-top:200px;" -->
       <div class="list-group refinemarginlefttenpx">
         <label class="active">Refine your results:</label>
-        <input id="refinesearch" type="text" class="list-group-item form-control" style="height:50px;" ng-model="refine_package_name" ng-change="filterResults()" placeholder="Refine text">
+        <input id="refinesearch" type="text" class="list-group-item form-control refinesearch" style="height:50px;" ng-model="refine_package_name" ng-change="filterResults()" placeholder="Refine text">
       </div>
       <div class="list-group refinemarginlefttenpx">
         <label class="active">Filter distribution:</label>
-          <uib-accordion>
-            <uib-accordion-group heading="{{os_name.type}}" ng-repeat="os_name in os_list" ng-if="os_name.type !== 'All'" panel-class="panel-info" ng-model="os_name.value">
-              <div ng-repeat="os_ver_name in os_versions_list[os_name.type]" >
-                <label><input type="checkbox" class="distroversioncheck" ng-model="os_ver_name.value" ng-click="filterResults($event)">{{os_ver_name.type}}&nbsp - ({{ os_ver_name.filtercount }}/{{ os_ver_name.count }})</label>
-              </div>
-            </uib-accordion-group>
-          </uib-accordion>
+        <div ng-repeat="os_name in os_list" class="customfont">
+          <!-- <input type="checkbox" ng-click="tickUntickFilters(os_name.type)"> -->
+          <label class="list-group-item list-group-item-info" ng-if="os_name.type !== 'All' && os_name.value" ng-click="toggle_child_filters(os_name.type);">{{ os_name.type }}</label>
+          <div id="" ng-repeat="os_ver_name in os_versions_list[os_name.type]" ng-if="os_name.type !== 'All'  && os_name.value" ng-show="display_child_filters(os_name.type);">
+            <label class="list-group-item"><input type="checkbox" class="distroversioncheck" ng-model="os_ver_name.value" ng-click="filterResults($event)">{{os_ver_name.type}}&nbsp - ({{ os_ver_name.filtercount }}/{{ os_ver_name.count }})</label>
+          </div>
+        </div>  
       </div>
     </div>
     <div class="col-sm-10 main" >
       <div class="table-responsive" ng-show="pagedItems.length == 0">
         <h6 class="text-danger">No packages are found matching the filters.  Try changing the filters or perform a new search.</h6>
       </div>
-      <div class="table-responsive customfont"  ng-show="pagedItems.length > 0">
+      <div class="customfont"  ng-show="pagedItems.length > 0">
         <table class="table table-condensed table-hover">
           <thead>
             <tr>
-              <td colspan="4">
+              <td colspan="3">
                 <div>
                   <span>Records per page:&nbsp;<select ng-model="itemsPerPage" ng-options="x for x in page_options"  ng-change="filterResults()" ></span>
                 </div>
               </td>
             </tr>
-            <tr class="table-info">
+            <tr class="info">
               <th>Package Name<a ng-click="sort_by('S')"><i ng-class="sortIcon('S')"></i></a></th>
               <th>Version<a ng-click="sort_by('V')"><i ng-class="sortIcon('V')"></i></a></th>
-              <th>Distro<a ng-click="sort_by('D')"><i ng-class="sortIcon('D')"></i></a></th>
-              <th></th> <!-- <th>Description<a ng-click="sort_by('id')"><i class="icon-sort"></i></a></th> -->
+              <th>Distro</th> <!-- <th>Distro<a ng-click="sort_by('D')"><i ng-class="sortIcon('D')"></i></a></th>-->
+              <!-- <th></th> <th>Description<a ng-click="sort_by('id')"><i class="icon-sort"></i></a></th> -->
             </tr>
           </thead>
           <tfoot>
-            <tr class="table-info">
+            <tr class="info">
               <th>Package Name<a ng-click="sort_by('S')"><i ng-class="sortIcon('S')"></i></a></th>
               <th>Version<a ng-click="sort_by('V')"><i ng-class="sortIcon('V')"></i></a></th>
-              <th>Distro<a ng-click="sort_by('D')"><i ng-class="sortIcon('D')"></i></a></th>
-              <th></th> <!-- <th>Description<a ng-click="sort_by('id')"><i class="icon-sort"></i></a></th> -->
+              <th>Distro</th> <!-- <th>Distro<a ng-click="sort_by('D')"><i ng-class="sortIcon('D')"></i></a></th>-->
+              <!-- <th></th> <th>Description<a ng-click="sort_by('id')"><i class="icon-sort"></i></a></th> -->
             </tr>
             <tr>
-              <td colspan="4">
+              <td colspan="3">
                 <div>
                     <ul class="pagination" style="margin-top:0px;margin-bottom:0px;" ng-show="pagedItems.length > 1">
                         <li ng-class="{disabled: currentPage <= 0}">
@@ -101,7 +101,7 @@
               <td>{{item.P}}</td>
               <td>{{item.V}}</td>
               <td>{{getDisplayDistro(item)}}</td>
-              <td></td>
+              <!-- <td></td> -->
             </tr>
           </tbody>
         </table>

@@ -91,18 +91,26 @@ class PackageSearch:
         
         search_packages_begin_with = str(search_term).endswith('*')
         search_packages_end_with = str(search_term).startswith('*')
-        search_anywhere_in_packages = (search_packages_begin_with and search_packages_begin_with) or ('*' not in str(search_term))
+        search_anywhere_in_packages = (search_packages_begin_with and search_packages_end_with) or ('*' not in str(search_term))
+        
+        LOGGER.debug('searchPackages: search_packages_begin_with : %s', search_packages_begin_with)
+        LOGGER.debug('searchPackages: search_packages_end_with : %s', search_packages_end_with)
+        LOGGER.debug('searchPackages: search_anywhere_in_packages : %s', search_anywhere_in_packages)
         
         search_term = search_term.replace('*', '')
         search_term_ucase = search_term.upper()
 
         if (exact_match.lower() == 'true'):
+            LOGGER.debug('searchPackages: Doing exact search')
             preliminary_results = filter(lambda s: s['P'] == search_term, self.INSTANCE.package_data)
         elif search_anywhere_in_packages:
+            LOGGER.debug('searchPackages: Doing Anywhere Search')
             preliminary_results = filter(lambda s: search_term_ucase in s['S'], self.INSTANCE.package_data)
         elif search_packages_begin_with:
+            LOGGER.debug('searchPackages: find names that begin with')
             preliminary_results = filter(lambda s: str(s['S']).startswith(search_term_ucase), self.INSTANCE.package_data)
         elif search_packages_end_with:
+            LOGGER.debug('searchPackages: find names that end with')
             preliminary_results = filter(lambda s: str(s['S']).endswith(search_term_ucase), self.INSTANCE.package_data)
 
         LOGGER.debug('searchPackages: Search on package name : %s', len(preliminary_results))
