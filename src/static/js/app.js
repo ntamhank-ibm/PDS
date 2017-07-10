@@ -1,9 +1,13 @@
 var myApp = angular.module("pds", ['ngRoute']); 
 
-//,'ui.bootstrap'
-
 myApp.config(
-	[ '$routeProvider', function($routeProvider) {
+	[ '$routeProvider', '$locationProvider', function($routeProvider,$locationProvider) {
+        $locationProvider.hashPrefix('/pds/');
+        $locationProvider.html5Mode({
+            enabled: true,
+            requireBase: false,
+            rewriteLinks: true
+        });
 		$routeProvider.when('/', {
 			templateUrl : '/static/js/views/home.html',
 			controller : 'HomeController'		 

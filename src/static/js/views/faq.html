@@ -1,21 +1,105 @@
 <div class="container-fluid">
   <div class="row">
-    <div class="col-sm-2 sidebar" > 
-      <div class="list-group">
-        <label class="list-group-item-lg active">FAQ Questions</label>
-      </div>
-      <div class="list-group">
-        <label class="list-group-item-lg active">Filter distribution:</label>
-        <span ng-repeat="os_name in os_list" class="list-group customfont" >
-          <label class="list-group-item list-group-item-info" ng-if="os_name.type !== 'All' && os_name.value" >{{ os_name.type }}</label>
-          <div ng-repeat="os_ver_name in os_versions_list[os_name.type]" ng-if="os_name.type !== 'All'  && os_name.value" >
-            <label class="list-group-item"><input type="checkbox" class="distroversioncheck" ng-model="os_ver_name.value" ng-click="filterResults($event)">{{os_ver_name.type}}&nbsp - ({{ os_ver_name.filtercount }}/{{ os_ver_name.count }})</label>
-          </div>
-        </span>
-      </div>
+    <div class="col-md-6" style="padding:20px;">
+      <h5>Frequently Asked Questions</h5>
     </div>
-    <div class="col-sm-10 main" >
-      FAQ Contents will come here
+    <div class="col-md-6" style="padding:20px;">
+      <span class="pull-right"><a href="/pds">Back to search</a></span>
+    </div>
+  </div>
+</div>
+<div class="container-fluid">
+  <div class="row">
+    <div class="list-group refinemarginlefttenpx">
+      <div class="list-group-item list-group-item-info ng-class:{'active': questionState(1)};"  ng-click="clickQuestion(1)"> <!-- ng-class="[list-group-item, { 'active':questionState(1) }]"  -->
+        What is PDS?
+      </div>
+      <div class="list-group-item" ng-show="questionState(1)">
+        <p>PDS, or Package Distribution Search tool, helps you to search for available packages across OS distributions in a single user interface. Current version of PDS is v1.3</p>
+      </div>
+      <div class="list-group-item list-group-item-info ng-class:{'active': questionState(2)};"  ng-click="clickQuestion(2)"> <!--ng-class="[list-group-item, { 'active':questionState(2) } ]"-->
+        Which operating systems does PDS support?
+      </div>
+      <div class="list-group-item" ng-show="questionState(2)">
+        <p>Currently, PDS supports the following operating systems:
+        <ul>
+            <li>SUSE Linux Enterprise Server 11 SP4/12 SP1/12 SP2</li>
+            <li>Ubuntu 16.04/16.10/17.04</li>
+        </ul></p>
+      </div>
+      <div class="list-group-item list-group-item-info ng-class:{'active': questionState(3)};"  ng-click="clickQuestion(3)">
+        Where can I find more details about packages available for various distros?
+      </div>
+      <div class="list-group-item" ng-show="questionState(3)">
+        <p>More details of packages can be obtained directly from following links provided by respective distros.</p>
+        <ul>
+            <li><a href="https://www.suse.com/LinuxPackages/packageRouter.jsp?product=server&version=11&architecture=s390x&package_name=index_all" target="blank">SUSE Linux Enterprise Server 11</a></li>
+            <li><a href="https://www.suse.com/LinuxPackages/packageRouter.jsp?product=server&version=12&architecture=s390x&package_name=index_all" target="blank">SUSE Linux Enterprise Server 12</a></li>
+            <li><a href="https://launchpad.net/ubuntu/xenial/s390x/" target="blank">Ubuntu 16.04</a></li>
+            <li><a href="https://launchpad.net/ubuntu/yakkety/s390x/" target="blank">Ubuntu 16.10</a></li>
+            <li><a href="https://launchpad.net/ubuntu/zesty/s390x/" target="blank">Ubuntu 17.04</a></li>     
+        </ul></p>
+      </div>
+      <div class="list-group-item list-group-item-info ng-class:{'active': questionState(4)};"  ng-click="clickQuestion(4)">
+        Does PDS list the packages for all architectures?
+      </div>
+      <div class="list-group-item" ng-show="questionState(4)">
+        <p>No. The packages that PDS lists are for only the s390x architecture.</p>
+      </div>
+      <div class="list-group-item list-group-item-info ng-class:{'active': questionState(5)};"  ng-click="clickQuestion(5)">
+        Which web browsers does PDS work on?
+      </div>
+      <div class="list-group-item" ng-show="questionState(5)">
+        <p>Currently, PDS works on the following web browsers:
+        <ul>
+            <li>Mozilla Firefox 45.7.0</li>
+            <li>Google Chrome 55</li>
+            <li>Internet Explorer 11</li>
+        </ul></p>
+      </div>
+      <div class="list-group-item list-group-item-info ng-class:{'active': questionState(6)};"  ng-click="clickQuestion(6)">
+        What is the format for entering the search keywords?
+      </div>
+      <div class="list-group-item" ng-show="questionState(6)">
+        <p>The keyword must be three or more characters.
+        <ul>
+           <li>To search for a package that contains the keyword anywhere in its name, enter three or more characters</li>           
+           <li>To search for a package that contains the keyword at the end of its name, enter the asterisk character, followed by three or more characters. For example, enter <b>*docker</b> to search for package names that end with the string <b>docker</b>.</li>
+           <li>To search for a package that contains the keyword at the beginning of its name, enter three or more characters followed by the asterisk character. For example, enter <b>docker*</b> to search for package names that begin with the string <b>docker</b>.</li>
+           <li>To search for package names that exactly match the keyword, enter three or more characters, and then click the <b>Search <keyword> (Exact Match)</b> hyperlink.</li>
+        </ul>
+        </p>
+      </div>
+      <div class="list-group-item list-group-item-info ng-class:{'active': questionState(7)};"  ng-click="clickQuestion(7)">
+        How can I narrow my search?
+      </div>
+      <div class="list-group-item" ng-show="questionState(7)">
+        <p>To get packages which exactly matches the search keyword, click on the hyperlink &quot;Search &lt;keyword&gt; (Exact Match)&quot; after entering search keyword</p>
+      </div>
+      <div class="list-group-item list-group-item-info ng-class:{'active': questionState(8)};"  ng-click="clickQuestion(8)">
+        What package details does PDS display in the search results?
+      </div>
+      <div class="list-group-item" ng-show="questionState(8)">
+        <p>PDS displays the following package details in the search results:
+           <ul>
+           <li>Package Name</li>
+           <li>Package Version</li>
+           <li>Operating system for which the package is available</li>
+           </ul>
+        </p>
+      </div>
+      <div class="list-group-item list-group-item-info ng-class:{'active': questionState(9)};"  ng-click="clickQuestion(9)">
+        How accurate is the package information that PDS provides?
+      </div>
+      <div class="list-group-item" ng-show="questionState(9)">
+        <p>The package information is regularly updated. It is accurate as on the date of the update. However, the information might become obsolete between updates. To obtain the most current package information, go to the official Linux distribution websites.</p>
+      </div>
+      <div class="list-group-item list-group-item-info ng-class:{'active': questionState(10)};"  ng-click="clickQuestion(10)">
+        Where can I find more information on running Linux open source packages on IBM LinuxONE and IBM z Systems?
+      </div>
+      <div class="list-group-item" ng-show="questionState(10)">
+        <p>More information on open source packages that have been ported and/or validated on corresponding distro versions by IBM could be found on <a href="https://www.ibm.com/developerworks/community/forums/html/topic?id=5dee144a-7c64-4bfe-884f-751d6308dbdf">Forum</a> from <a href="https://www.ibm.com/developerworks/community/groups/community/lozopensource">Community</a>.</p>
+      </div>
     </div>
   </div>
 </div>

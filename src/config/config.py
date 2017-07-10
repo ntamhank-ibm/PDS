@@ -36,7 +36,7 @@ SUPPORTED_DISTROS = {
         '16.10': 'Ubuntu_16_10_Package_List.json',
         '17.04': 'Ubuntu_17_04_Package_List.json'
     }, 
-    'Suse Linux Enterprise Server': {
+    'SUSE Linux Enterprise Server': {
         '11 SP4': 'Suse_Linux_Enterprise_Server_11_SP4_Package_List.json',
         '12 SP1': 'Suse_Linux_Enterprise_Server_12_SP1_Package_List.json',
         '12 SP2': 'Suse_Linux_Enterprise_Server_12_SP2_Package_List.json'

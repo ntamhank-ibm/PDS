@@ -4,8 +4,8 @@
       <div class="input_group distrolist" >
         <label>Select linux distribution:</label>
           <span ng-repeat="os_name in os_list">
-            <label><input type="checkbox" ng-model="os_name.value" ng-if="os_name.type === 'All'"  ng-click="tickUntick($event);" id="chkAll" >
-            <input type="checkbox" ng-model="os_name.value"  ng-checked="os_name.value" ng-if="os_name.type !== 'All'" ng-click="tickUntick($event);">{{os_name.type}}</label>
+            <label style="padding-left:10px;"><input style="margin-right:2px;" type="checkbox" ng-model="os_name.value" ng-if="os_name.type === 'All'"  ng-click="tickUntick($event);" id="chkAll" >
+            <input style="margin-right:3px;" type="checkbox" ng-model="os_name.value"  ng-checked="os_name.value" ng-if="os_name.type !== 'All'" ng-click="tickUntick($event);">{{os_name.type}}</label>
           </span>
       </div>
       <div class="input-group searchbuttons">
