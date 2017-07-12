@@ -89,10 +89,10 @@ SUPPORTED_DISTROS = {
         'Ubuntu 16.10': 'Ubuntu_16_10.json',
         'Ubuntu 16.04': 'Ubuntu_16_04.json'
     }, 
-    'Suse Linux Enterprise Server': {
-        'Suse Linux Enterprise Server 11 SP4': 'Suse_Linux_Enterprise_Server_11_SP4.json',
-        'Suse Linux Enterprise Server 12 SP1': 'Suse_Linux_Enterprise_Server_12_SP1.json',
-        'Suse Linux Enterprise Server 12 SP2': 'Suse_Linux_Enterprise_Server_12_SP2.json'
+    'SUSE Linux Enterprise Server': {
+        'SUSE Linux Enterprise Server 11 SP4': 'Suse_Linux_Enterprise_Server_11_SP4.json',
+        'SUSE Linux Enterprise Server 12 SP1': 'Suse_Linux_Enterprise_Server_12_SP1.json',
+        'SUSE Linux Enterprise Server 12 SP2': 'Suse_Linux_Enterprise_Server_12_SP2.json'
     }
 }
 ```
