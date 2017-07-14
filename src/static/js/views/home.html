@@ -2,7 +2,8 @@
   <div class="row">
     <div class="col-md-12">
       <div class="input_group distrolist" >
-        <label>Select linux distribution:</label>
+        <!--<pre>{{ os_versions_list | json }} </pre>-->
+        <div>Select linux distribution:</div>
           <span ng-repeat="os_name in os_list">
             <label style="padding-left:10px;"><input style="margin-right:2px;" type="checkbox" ng-model="os_name.value" ng-if="os_name.type === 'All'"  ng-click="tickUntick($event);" id="chkAll" >
             <input style="margin-right:3px;" type="checkbox" ng-model="os_name.value"  ng-checked="os_name.value" ng-if="os_name.type !== 'All'" ng-click="tickUntick($event);">{{os_name.type}}</label>
@@ -22,30 +23,36 @@
 </div>
 <!-- Begin page content -->
 <div class="container" ng-show="no_results_found.length > 0">
-  <h6 class="text-danger">{{no_results_found}}</h6>
+  <h4 class="text-danger">{{no_results_found}}</h4>
 </div>
 <div ng-show="loading" class="loading" style="padding-left:49%"><div ng-show="loading" class="overlay"></div><img  src="/static/images/ajax-loader.gif"></div>
 <div class="container-fluid" ng-show="packages_all.length > 0">
   <div class="row">
-    <div class="col-sm-2 sidebar" > <!--sidebar  style="margin-top:200px;" -->
+    <div class="col-sm-3 sidebar" > <!--sidebar  style="margin-top:200px;" -->
       <div class="list-group refinemarginlefttenpx">
         <label class="active">Refine your results:</label>
         <input id="refinesearch" type="text" class="list-group-item form-control refinesearch" style="height:50px;" ng-model="refine_package_name" ng-change="filterResults()" placeholder="Refine text">
       </div>
       <div class="list-group refinemarginlefttenpx">
         <label class="active">Filter distribution:</label>
-        <div ng-repeat="os_name in os_list" class="customfont">
-          <!-- <input type="checkbox" ng-click="tickUntickFilters(os_name.type)"> -->
-          <label class="list-group-item list-group-item-info" ng-if="os_name.type !== 'All' && os_name.value" ng-click="toggle_child_filters(os_name.type);">{{ os_name.type }}</label>
-          <div id="" ng-repeat="os_ver_name in os_versions_list[os_name.type]" ng-if="os_name.type !== 'All'  && os_name.value" ng-show="display_child_filters(os_name.type);">
-            <label class="list-group-item"><input type="checkbox" class="distroversioncheck" ng-model="os_ver_name.value" ng-click="filterResults($event)">{{os_ver_name.type}}&nbsp - ({{ os_ver_name.filtercount }}/{{ os_ver_name.count }})</label>
+        <div ng-repeat="os_name in refine_os_list" class="customfont">
+          <span class="list-group-item list-group-item-info" style="padding-left: 5px;padding-right: 5px;">
+            <label>
+              <input type="checkbox" ng-model="os_wise_accordion_checkboxes[os_name.type]" ng-click="tickUntickRefineCheckboxes(os_name.type)">&nbsp;&nbsp;
+            </label>
+            <label ng-click="toggle_child_filters(os_name.type);" ng-class="{'icon-chevron-down':display_child_filters(os_name.type), 'icon-chevron-right':!display_child_filters(os_name.type)}">{{ os_name.type }}</label> <!-- -->
+          </span>
+          <div id="" ng-repeat="os_ver_name in os_versions_list[os_name.type]" ng-show="display_child_filters(os_name.type);"> <!-- -->
+            <label class="list-group-item">
+              <input type="checkbox" class="distroversioncheck" ng-model="os_ver_name.value" ng-click="filterResults()">{{os_ver_name.type}}&nbsp - ({{ os_ver_name.value ? os_ver_name.filtercount : 0 }}/{{ os_ver_name.count }})
+            </label>
           </div>
         </div>  
       </div>
     </div>
-    <div class="col-sm-10 main" >
+    <div class="col-sm-9 main" >
       <div class="table-responsive" ng-show="pagedItems.length == 0">
-        <h6 class="text-danger">No packages are found matching the filters.  Try changing the filters or perform a new search.</h6>
+        <h4 class="text-danger">Searching '{{ package_name }}' finds {{ packages_all.length }} packages but none matching the filter criteria.  Try changing the filters or perform a new search.</h4>
       </div>
       <div class="customfont"  ng-show="pagedItems.length > 0">
         <table class="table table-condensed table-hover">
@@ -58,18 +65,18 @@
               </td>
             </tr>
             <tr class="info">
-              <th>Package Name<a ng-click="sort_by('S')"><i ng-class="sortIcon('S')"></i></a></th>
-              <th>Version<a ng-click="sort_by('V')"><i ng-class="sortIcon('V')"></i></a></th>
-              <th>Distro</th> <!-- <th>Distro<a ng-click="sort_by('D')"><i ng-class="sortIcon('D')"></i></a></th>-->
-              <!-- <th></th> <th>Description<a ng-click="sort_by('id')"><i class="icon-sort"></i></a></th> -->
+              <th>Package Name<a ng-click="set_sort_order('S')"><i ng-class="sortIcon('S')"></i></a></th>
+              <th>Version<a ng-click="set_sort_order('V')"><i ng-class="sortIcon('V')"></i></a></th>
+              <th>Distro</th> <!-- <th>Distro<a ng-click="set_sort_order('D')"><i ng-class="sortIcon('D')"></i></a></th>-->
+              <!-- <th></th> <th>Description<a ng-click="set_sort_order('id')"><i class="icon-sort"></i></a></th> -->
             </tr>
           </thead>
           <tfoot>
             <tr class="info">
-              <th>Package Name<a ng-click="sort_by('S')"><i ng-class="sortIcon('S')"></i></a></th>
-              <th>Version<a ng-click="sort_by('V')"><i ng-class="sortIcon('V')"></i></a></th>
-              <th>Distro</th> <!-- <th>Distro<a ng-click="sort_by('D')"><i ng-class="sortIcon('D')"></i></a></th>-->
-              <!-- <th></th> <th>Description<a ng-click="sort_by('id')"><i class="icon-sort"></i></a></th> -->
+              <th>Package Name<a ng-click="set_sort_order('S')"><i ng-class="sortIcon('S')"></i></a></th>
+              <th>Version<a ng-click="set_sort_order('V')"><i ng-class="sortIcon('V')"></i></a></th>
+              <th>Distro</th> <!-- <th>Distro<a ng-click="set_sort_order('D')"><i ng-class="sortIcon('D')"></i></a></th>-->
+              <!-- <th></th> <th>Description<a ng-click="set_sort_order('id')"><i class="icon-sort"></i></a></th> -->
             </tr>
             <tr>
               <td colspan="3">

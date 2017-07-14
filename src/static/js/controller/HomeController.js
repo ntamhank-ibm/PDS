@@ -18,6 +18,7 @@ var HomeController = function($scope) {
     
     $scope.all = []; 
     $scope.os_list = []; 
+    $scope.refine_os_list = [];
     $scope.os_versions_list = []; 
     $scope.current_set = []; 
     $scope.search_bit_flag = 0;
@@ -35,6 +36,7 @@ var HomeController = function($scope) {
     $scope.no_results_found = '';
     $scope.loading = false;
     $scope.os_wise_accordion = [];
+    $scope.os_wise_accordion_checkboxes = [];
     
     // Get the package information data from the server and process it for display
     $.ajax({
@@ -48,14 +50,15 @@ var HomeController = function($scope) {
             }
                 $scope.supported_oses_list_keys = Object.keys($scope.supported_oses_list);
                 $scope.all.push({type:"All",value:false}); 
+                $scope.os_list = [];
                 $scope.os_list.push({type:"All",value:false});
                 var osversions = [];
-                var tempName = '';
                 for (supported_os_name in $scope.supported_oses_list_keys)
                 {
                     $scope.os_list.push({type:$scope.supported_oses_list_keys[supported_os_name],value:false});
                     tempName = $scope.supported_oses_list_keys[supported_os_name];
-                    $scope.os_wise_accordion.push({ tempName : false});
+                    $scope.os_wise_accordion[tempName] = true;
+                    $scope.os_wise_accordion_checkboxes[tempName] = true;
                 }
                 for(os_name in $scope.supported_oses_list){
                     osversions = Object.keys($scope.supported_oses_list[os_name]);
@@ -75,18 +78,8 @@ var HomeController = function($scope) {
     if($scope.packages_all === undefined){
         $scope.packages_all = [];
     }
-    $scope.sortKey = 'name';
     
-    $scope.request_complete = true;
-    
-    //$scope.loading = false;
-    $scope.toggle = false;
-    $scope.empty_resultset_message = '';
-    $scope.$watch('toggle', function(){
-        $scope.toggleText = $scope.toggle ? '+' : '-';
-    });
-
-    $scope.sort_by = function(newSortingOrder) {
+    $scope.set_sort_order = function(newSortingOrder) {
         if ($scope.sortingOrder == newSortingOrder)
             $scope.reverse = !$scope.reverse;
 
@@ -187,28 +180,8 @@ var HomeController = function($scope) {
                         break;}
                 }
             }
-            //$scope.all[0].value = tickState; 
             $scope.os_list[0].value = tickState; 
         }
-        /*if(tickevent !== undefined && tickevent.target.id === 'chkAll')
-        {
-            var tickState = $('#chkAll').prop("checked");
-            for(rec in $scope.os_list){
-                $scope.os_list[rec].value = tickState;
-            }
-        }
-        else
-        {
-            for(rec in $scope.os_list){
-                if($scope.os_list[rec].type !== 'All'){
-                    if(!$scope.os_list[rec].value){
-                        tickState = false;
-                        break;}
-                }
-            }
-            //$scope.all[0].value = tickState; 
-            $scope.os_list[0].value = tickState; 
-        }*/
         $scope.is_distro_selected(); //this would clear error message just in case
     };
     
@@ -292,7 +265,14 @@ var HomeController = function($scope) {
                     $scope.packages_all = packages_all;
                     $scope.no_results_found = '';
                 }
-                $scope.computePackageCount(false); //Counting packages as they are found from the server
+                $scope.computePackageCount(false); //Make an initial 'distro version wise' count
+                $scope.refine_os_list = [];
+                
+                for (v_os in $scope.os_list) {
+                    if ($scope.os_list[v_os].type !== 'All' && $scope.os_list[v_os].value) {
+                        $scope.refine_os_list.push({type: $scope.os_list[v_os].type, value: $scope.os_list[v_os].value});
+                    }
+                }
                 $scope.filterResults();
                 $scope.loading = false;
                 $scope.$apply();
@@ -303,10 +283,11 @@ var HomeController = function($scope) {
                 $scope.$apply();
             },
             error: function(req, response_status){
+                $scope.loading = false;
                 $scope.no_results_found = 'There was a issue contacting server please try again later'
                 $scope.$apply();
             },
-            timeout: 60000 // sets timeout to 60 seconds
+            timeout: 120000 // sets timeout to 120 seconds
           });
     }
     
@@ -349,10 +330,9 @@ var HomeController = function($scope) {
         }
     }
     
-    $scope.filterResults = function(refineCheckEvent){
-        if(refineCheckEvent !== undefined && refineCheckEvent === 0){
+    $scope.filterResults = function(fromMainSearch){
+        if(fromMainSearch !== undefined || fromMainSearch ){
             console.log('Filtering from main search');
-            //This is called from main search - so use AS IS
             $scope.filteredItems = $scope.packages_all;
         }
         else{
@@ -370,7 +350,7 @@ var HomeController = function($scope) {
             }
             else if(distro_version_filter == true){
                 $scope.filteredItems = $scope.packages_all.filter(function (pkg) {
-                    pfound = pkg.P.includes($scope.refine_package_name);
+                    pfound = pkg.P.includes($scope.refine_package_name) || pkg.V.includes($scope.refine_package_name);
                     if(!pfound){return false;}
                     os_found = false;
                     for(os_name in $scope.os_versions_list){
@@ -420,13 +400,29 @@ var HomeController = function($scope) {
     };
     
     $scope.getDisplayDistro = function(package_data){
-        //var ret = [];
         var distros = '';
+        var tmpPkgDistros = [];
         var package_distro_names = Object.keys(package_data);
         for(rec in $scope.os_list){
+            tmpPkgDistros = [];
             searched_distro_name = $scope.os_list[rec].type;
             if(package_distro_names.includes(searched_distro_name)){
-                distros += searched_distro_name + ' (' + package_data[searched_distro_name] + '), '
+                for(v in package_data[searched_distro_name]) {
+                    tmpPkgDistros.push(package_data[searched_distro_name][v]);
+                }
+                $scope.os_versions_list[searched_distro_name].filter(function (rec) { 
+                    if(!rec.value){
+                        idx = tmpPkgDistros.indexOf(rec.type);
+                            if(idx >= 0) {
+                                tmpPkgDistros.splice(idx,1);
+                            }
+                        }
+                    return;
+                    }
+                );
+                if(tmpPkgDistros.length > 0) {
+                    distros += searched_distro_name + ' (' + tmpPkgDistros + '), ';
+                }
             }
         }
         if(distros.length > 0){
@@ -454,18 +450,20 @@ var HomeController = function($scope) {
         $scope.os_wise_accordion[os_name] = !$scope.os_wise_accordion[os_name];
     };
     
+    $scope.tickUntickRefineCheckboxes = function(os_name) {
+        //console.log($scope.os_versions_list[os_name]);
+        for(v in $scope.os_versions_list[os_name]) {
+            //console.log(v);
+            //console.log($scope.os_versions_list[os_name][v]);
+            $scope.os_versions_list[os_name][v]['value'] = $scope.os_wise_accordion_checkboxes[os_name];
+        }
+        $scope.filterResults();
+    }
+    
     $scope.display_child_filters = function(os_name) {
         return $scope.os_wise_accordion[os_name];
     };
     
-    $scope.tickUntickFilters = function(os_name) {
-        //TODO: Update the values of all distro versions of given os_name in array = 
-        
-    }
-    
-    $scope.child_filters_checked = function(os_name) {
-        //TODO: Return whether the checkbox should be ticked or unticked
-    }
 };
 
 myApp.controller('HomeController', HomeController);
