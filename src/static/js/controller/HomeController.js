@@ -216,13 +216,28 @@ var HomeController = function($scope) {
         $scope.loading = true;
         var search_bit_flag = 0;
         for(rec in $scope.os_list){
-            if($scope.os_list[rec].value){
+            if($scope.os_list[rec].type != 'All'){
                 for(distro_version_record in $scope.supported_oses_list[$scope.os_list[rec].type]){
-                    $scope.search_bit_flag += $scope.supported_oses_list[$scope.os_list[rec].type][distro_version_record]
+                    search_bit_flag += $scope.supported_oses_list[$scope.os_list[rec].type][distro_version_record]
+                }
+                if(!$scope.os_list[rec].value){
+                    /* This needs to be done because, previous search may have refined based on certain distro versions and this search has not selected that distro, so to avoid incorrect refinement, just exlude these specific versions*/
+                    for(distro_version_record in $scope.os_versions_list[$scope.os_list[rec].type]){
+                        $scope.os_versions_list[$scope.os_list[rec].type][distro_version_record]['value'] = false;
+                    }
+                }
+                else {
+                    /* Doing nothing here.  So in case the distro is selected and even if during previous search its distro versions were unchecked, we would leave it AS IS.
+                       TODO: Change this if this behaviour needs to change.
+                    */
                 }
             }
         }
+        $scope.search_bit_flag  = search_bit_flag;
         $scope.error_message = '';
+        if(psearch_exact === undefined){
+            psearch_exact = false;
+        }
         $scope.exact_match = psearch_exact;
         $scope.callSearchAPI();
     };
@@ -316,7 +331,7 @@ var HomeController = function($scope) {
                 else{
                     for(os_ver_rec in $scope.os_versions_list[os_name]){
                         //console.log(JSON.stringify($scope.os_versions_list[os_name][os_ver_rec]));
-                        if(pkg[os_name].includes($scope.os_versions_list[os_name][os_ver_rec].type)){
+                        if(pkg[os_name].indexOf($scope.os_versions_list[os_name][os_ver_rec].type) >= 0){
                             if(countFiltered){
                                 $scope.os_versions_list[os_name][os_ver_rec].filtercount += 1;
                             }
@@ -350,7 +365,7 @@ var HomeController = function($scope) {
             }
             else if(distro_version_filter == true){
                 $scope.filteredItems = $scope.packages_all.filter(function (pkg) {
-                    pfound = pkg.P.includes($scope.refine_package_name) || pkg.V.includes($scope.refine_package_name);
+                    pfound = pkg.P.indexOf($scope.refine_package_name)>=0 || pkg.V.indexOf($scope.refine_package_name)>=0;
                     if(!pfound){return false;}
                     os_found = false;
                     for(os_name in $scope.os_versions_list){
@@ -363,7 +378,7 @@ var HomeController = function($scope) {
                                 //console.log($scope.os_versions_list[os_name][os_ver_rec].type); //OS Version
                                 if($scope.os_versions_list[os_name][os_ver_rec].value){
                                     //OS Ver is ticked
-                                    if(pkg[os_name].includes($scope.os_versions_list[os_name][os_ver_rec].type)){
+                                    if(pkg[os_name].indexOf($scope.os_versions_list[os_name][os_ver_rec].type) >= 0){
                                         os_found = true;
                                         return os_found;
                                     }
@@ -406,7 +421,7 @@ var HomeController = function($scope) {
         for(rec in $scope.os_list){
             tmpPkgDistros = [];
             searched_distro_name = $scope.os_list[rec].type;
-            if(package_distro_names.includes(searched_distro_name)){
+            if(package_distro_names.indexOf(searched_distro_name) >= 0){
                 for(v in package_data[searched_distro_name]) {
                     tmpPkgDistros.push(package_data[searched_distro_name][v]);
                 }

@@ -1,3 +1,4 @@
+
 <div class="container-fluid">
   <div class="row">
     <div class="col-md-6" style="padding:20px;">
@@ -23,9 +24,6 @@
       <div class="list-group-item" ng-show="questionState(2)">
         <p>Currently, PDS supports the following operating systems:
         <ul>
-            <li>Debian 8.0</li>
-            <li>Fedora 25</li>
-            <li>Red Hat Enterprise Linux 6.8/7.1/7.2/7.3</li>   
             <li>SUSE Linux Enterprise Server 11 SP4/12 SP1/12 SP2</li>
             <li>Ubuntu 16.04/16.10/17.04</li>
         </ul></p>
@@ -36,16 +34,13 @@
       <div class="list-group-item" ng-show="questionState(3)">
         <p>More details of packages can be obtained directly from following links provided by respective distros.</p>
         <ul>
-            <li><a href="https://www.suse.com/LinuxPackages/packageRouter.jsp?product=server&version=11&architecture=s390x&package_name=index_all" target="blank">SUSE Linux Enterprise Server 11</a></li>
-            <li><a href="https://www.suse.com/LinuxPackages/packageRouter.jsp?product=server&version=12&architecture=s390x&package_name=index_all" target="blank">SUSE Linux Enterprise Server 12</a></li>
-            <li><a href="https://launchpad.net/ubuntu/xenial/s390x/" target="blank">Ubuntu 16.04</a></li>
-            <li><a href="https://launchpad.net/ubuntu/yakkety/s390x/" target="blank">Ubuntu 16.10</a></li>
-            <li><a href="https://launchpad.net/ubuntu/zesty/s390x/" target="blank">Ubuntu 17.04</a></li>     
-            <li><a href="https://packages.debian.org/jessie/s390x/" target="blank">Debian 8</a></li>
-            <li><a href="https://admin.fedoraproject.org/pkgdb/packages/%2A/?page=1" target="blank">Fedora</a></li>
-            <li><a href="https://access.redhat.com/documentation/en-US/Red_Hat_Enterprise_Linux/6/html/Package_Manifest/part-Documentation-Package_Manifest-Package_Lists-Base_Channel.html" target="blank">RHEL 6</a></li>
-            <li><a href="https://access.redhat.com/documentation/en-US/Red_Hat_Enterprise_Linux/7/html/Package_Manifest/part-Documentation-Package_Manifest-Package_Lists-Base_Channel.html" target="blank">RHEL 7</a></li>
-	</ul></p>
+          <li><a href="https://www.suse.com/LinuxPackages/packageRouter.jsp?product=server&version=11&architecture=s390x&package_name=index_all" target="blank">SUSE Linux Enterprise Server 11</a></li>
+          <li><a href="https://www.suse.com/LinuxPackages/packageRouter.jsp?product=server&version=12&architecture=s390x&package_name=index_all" target="blank">SUSE Linux Enterprise Server 12</a></li>
+          <li><a href="https://packagehub.suse.com/#packages" target="blank">SUSE Package Hub</a></li>
+          <li><a href="https://launchpad.net/ubuntu/xenial/s390x/" target="blank">Ubuntu 16.04</a></li>
+          <li><a href="https://launchpad.net/ubuntu/yakkety/s390x/" target="blank">Ubuntu 16.10</a></li>
+          <li><a href="https://launchpad.net/ubuntu/zesty/s390x/" target="blank">Ubuntu 17.04</a></li>
+        </ul>
       </div>
       <div class="list-group-item list-group-item-info ng-class:{'active': questionState(4)};"  ng-click="clickQuestion(4)">
         Does PDS list the packages for all architectures?

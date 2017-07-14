@@ -2,9 +2,11 @@ import json
 import os
 import urllib
 import collections
+import copy 
 from sets import Set
 from config import DATA_FILE_LOCATION, DISABLE_PAGINATION, MAX_RECORDS_TO_CONCAT, LOGGER
 from config import SUPPORTED_DISTROS
+
 
 class PackageSearch:
     package_data = {}
@@ -99,26 +101,27 @@ class PackageSearch:
         
         search_term = search_term.replace('*', '')
         search_term_ucase = search_term.upper()
-
+        print "Starting : " + search_term
+        cache_key = ''
         if (exact_match.lower() == 'true'):
             LOGGER.debug('searchPackages: Doing exact search')
-            preliminary_results = filter(lambda s: s['P'] == search_term, self.INSTANCE.package_data)
+            preliminary_results = filter(lambda s: s['P'] == search_term and (s['B'] & search_bit_flag) > 0, self.INSTANCE.package_data)
         elif search_anywhere_in_packages:
             LOGGER.debug('searchPackages: Doing Anywhere Search')
-            preliminary_results = filter(lambda s: search_term_ucase in s['S'], self.INSTANCE.package_data)
+            preliminary_results = filter(lambda s: search_term_ucase in s['S'] and (s['B'] & search_bit_flag) > 0, self.INSTANCE.package_data)
         elif search_packages_begin_with:
             LOGGER.debug('searchPackages: find names that begin with')
-            preliminary_results = filter(lambda s: str(s['S']).startswith(search_term_ucase), self.INSTANCE.package_data)
+            preliminary_results = filter(lambda s: str(s['S']).startswith(search_term_ucase) and (s['B'] & search_bit_flag) > 0, self.INSTANCE.package_data)
         elif search_packages_end_with:
             LOGGER.debug('searchPackages: find names that end with')
-            preliminary_results = filter(lambda s: str(s['S']).endswith(search_term_ucase), self.INSTANCE.package_data)
+            preliminary_results = filter(lambda s: str(s['S']).endswith(search_term_ucase) and (s['B'] & search_bit_flag) > 0, self.INSTANCE.package_data)
 
-        LOGGER.debug('searchPackages: Search on package name : %s', len(preliminary_results))
+        LOGGER.debug('searchPackages: Search on package name and bit search : %s', len(preliminary_results))
 
-        final_results = filter(lambda s: ((s['B'] & search_bit_flag) > 0), preliminary_results)
-
-        LOGGER.debug('searchPackages: Search on bit rep : %s', len(final_results))
-
+        final_results = copy.deepcopy(preliminary_results);
+        for pkg in final_results:
+            del pkg['S']
+        
         LOGGER.debug('searchPackages: Applied pagination changes')
 
         final_data = {
