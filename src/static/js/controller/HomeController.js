@@ -217,9 +217,6 @@ var HomeController = function($scope) {
         var search_bit_flag = 0;
         for(rec in $scope.os_list){
             if($scope.os_list[rec].type != 'All'){
-                for(distro_version_record in $scope.supported_oses_list[$scope.os_list[rec].type]){
-                    search_bit_flag += $scope.supported_oses_list[$scope.os_list[rec].type][distro_version_record]
-                }
                 if(!$scope.os_list[rec].value){
                     /* This needs to be done because, previous search may have refined based on certain distro versions and this search has not selected that distro, so to avoid incorrect refinement, just exlude these specific versions*/
                     for(distro_version_record in $scope.os_versions_list[$scope.os_list[rec].type]){
@@ -227,9 +224,9 @@ var HomeController = function($scope) {
                     }
                 }
                 else {
-                    /* Doing nothing here.  So in case the distro is selected and even if during previous search its distro versions were unchecked, we would leave it AS IS.
-                       TODO: Change this if this behaviour needs to change.
-                    */
+                    for(distro_version_record in $scope.supported_oses_list[$scope.os_list[rec].type]){
+                        search_bit_flag += $scope.supported_oses_list[$scope.os_list[rec].type][distro_version_record]
+                    }
                 }
             }
         }
