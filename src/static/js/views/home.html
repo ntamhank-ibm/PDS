@@ -28,10 +28,10 @@
 <div ng-show="loading" class="loading" style="padding-left:49%"><div ng-show="loading" class="overlay"></div><img  src="/static/images/ajax-loader.gif"></div>
 <div class="container-fluid" ng-show="packages_all.length > 0">
   <div class="row">
-    <div class="col-sm-3 sidebar" > <!--sidebar  style="margin-top:200px;" -->
+    <div class="col-xs-12 col-md-3 sidebar" > <!--sidebar  style="margin-top:200px;" -->
       <div class="list-group refinemarginlefttenpx">
         <label class="active">Refine your results:</label>
-        <input id="refinesearch" type="text" class="list-group-item form-control refinesearch" style="height:50px;" ng-model="refine_package_name" ng-change="filterResults()" placeholder="Refine text">
+        <input id="refinesearch" type="text" class="list-group-item form-control refinesearch" style="height:50px;" ng-model="refine_package_name" ng-change="filterResults()" placeholder="Refine package name/version">
       </div>
       <div class="list-group refinemarginlefttenpx">
         <label class="active">Filter distribution:</label>
@@ -50,7 +50,7 @@
         </div>  
       </div>
     </div>
-    <div class="col-sm-9 main" >
+    <div class="col-xs-12 col-md-9 main" >
       <div class="table-responsive" ng-show="pagedItems.length == 0">
         <h4 class="text-danger">Searching '{{ package_name }}' finds {{ packages_all.length }} packages but none matching the filter criteria.  Try changing the filters or perform a new search.</h4>
       </div>
