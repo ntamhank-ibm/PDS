@@ -28,7 +28,7 @@
 <div ng-show="loading" class="loading" style="padding-left:49%"><div ng-show="loading" class="overlay"></div><img  src="/static/images/ajax-loader.gif"></div>
 <div class="container-fluid" ng-show="packages_all.length > 0">
   <div class="row">
-    <div class="col-xs-12 col-md-3 sidebar" > <!--sidebar  style="margin-top:200px;" -->
+    <div class="col-xs-12 col-sm-4 col-md-4 col-lg-3 sidebar" > <!--sidebar  style="margin-top:200px;" -->
       <div class="list-group refinemarginlefttenpx">
         <label class="active">Refine your results:</label>
         <input id="refinesearch" type="text" class="list-group-item form-control refinesearch" style="height:50px;" ng-model="refine_package_name" ng-change="filterResults()" placeholder="Refine package name/version">
@@ -40,7 +40,7 @@
             <label>
               <input type="checkbox" ng-model="os_wise_accordion_checkboxes[os_name.type]" ng-click="tickUntickRefineCheckboxes(os_name.type)">&nbsp;&nbsp;
             </label>
-            <label ng-click="toggle_child_filters(os_name.type);" ng-class="{'icon-chevron-down':display_child_filters(os_name.type), 'icon-chevron-right':!display_child_filters(os_name.type)}">{{ os_name.type }}</label> <!-- -->
+            <label ng-click="toggle_child_filters(os_name.type);" ng-class="{'glyphicon-minus':display_child_filters(os_name.type), 'glyphicon-plus':!display_child_filters(os_name.type)}">&nbsp;{{ os_name.type }}</label> <!-- -->
           </span>
           <div id="" ng-repeat="os_ver_name in os_versions_list[os_name.type]" ng-show="display_child_filters(os_name.type);"> <!-- -->
             <label class="list-group-item">
@@ -50,7 +50,7 @@
         </div>  
       </div>
     </div>
-    <div class="col-xs-12 col-md-9 main" >
+    <div class="col-xs-12 col-sm-8 col-md-8 col-lg-9 main" >
       <div class="table-responsive" ng-show="pagedItems.length == 0">
         <h4 class="text-danger">Searching '{{ package_name }}' finds {{ packages_all.length }} packages but none matching the filter criteria.  Try changing the filters or perform a new search.</h4>
       </div>

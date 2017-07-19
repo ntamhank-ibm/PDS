@@ -43,13 +43,14 @@ body {
 /*
  * Sidebar
  */
-
+/*
 @media (min-width: 800px) .sidebar {
-  /*display: none;*/
+  display: none;
   min-width: 300px;
 }
+*/
 
-@media (min-width: 800px) {
+@media (min-width: 350px) {
   .sidebar {
     line-height:9px;
     position: relative;
@@ -61,9 +62,10 @@ body {
     margin-top: 10px;
     padding-left: 5px;
     overflow-x: hidden;
-    overflow-y: auto; /* Scrollable contents if viewport is shorter than content. */
+    /* overflow-y: auto; Scrollable contents if viewport is shorter than content. */
+    /*
     min-width: 25%;
-    /*background-color: #f5f5f5;
+    background-color: #f5f5f5;
     border-right: 1px solid #eee;*/
   }
 }
