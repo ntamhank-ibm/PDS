@@ -38,6 +38,14 @@ var HomeController = function($scope) {
     $scope.os_wise_accordion = [];
     $scope.os_wise_accordion_checkboxes = [];
     
+    $scope.package_count = 0;
+    $scope.response_current_page = 0;
+    $scope.response_last_page =  0;
+    $scope.response_more_available = false;
+    $scope.request_next_page = 0;
+    $scope.background_fetch_message = ''
+    $scope.forced_stop = false;
+    
     // Get the package information data from the server and process it for display
     $.ajax({
         url: 'getSupportedDistros',
@@ -250,7 +258,12 @@ var HomeController = function($scope) {
             $scope.loading = false;
             return;
         }
-
+        
+        $scope.background_fetch_message = '';
+        $scope.package_count = 0;
+        $scope.response_current_page = 0;
+        $scope.response_last_page =  0;
+        $scope.response_more_available = false;
         // Get the package information data from the server and process it for display
         $.ajax({
             url: api_request_url,
@@ -262,8 +275,13 @@ var HomeController = function($scope) {
                     console.log(e);
                     distro_data = data;
                 }
-                package_count = distro_data.total_packages;
-                if(package_count == 0){
+                $scope.package_count = distro_data.total_packages;
+                $scope.response_current_page = distro_data.current_page;
+                $scope.response_last_page =  distro_data.last_page;
+                $scope.response_more_available = distro_data.more_available;
+                $scope.request_next_page = 0
+                
+                if($scope.package_count == 0){
                     $scope.no_results_found = 'Your search - "'+ decodeURI($scope.package_name) +'" - did not match any package.'
                     $scope.packages_all = [];
                 }
@@ -288,6 +306,8 @@ var HomeController = function($scope) {
                 $scope.filterResults();
                 $scope.loading = false;
                 $scope.$apply();
+                $scope.forced_stop = false;
+                $scope.fetchRemaining();
             },
             failure: function(data){
                 $scope.loading = false;
@@ -301,6 +321,89 @@ var HomeController = function($scope) {
             },
             timeout: 120000 // sets timeout to 120 seconds
           });
+    }
+    
+    $scope.fetchRemaining = function() {
+        /*
+        $scope.package_count
+        $scope.response_current_page
+        $scope.response_last_page
+        $scope.response_more_available
+        */
+        $scope.background_fetch_message = 'Please Wait. Received ' + $scope.packages_all.length + ' package details out of ' + $scope.package_count;
+        $scope.$apply();
+        if(($scope.response_current_page < $scope.response_last_page) && $scope.response_more_available && $scope.forced_stop == false) {
+            $scope.request_next_page += 1
+            newURL = api_request_url + '&page_number=' + $scope.request_next_page
+            console.log(newURL)
+            $.ajax({
+            url: newURL,
+            success: function(data){
+                console.log('Success')
+                try{
+                    distro_data = JSON.parse(data);
+                }
+                catch(e){
+                    console.log(e);
+                    distro_data = data;
+                }
+                $scope.package_count = distro_data.total_packages;
+                $scope.response_current_page = distro_data.current_page;
+                $scope.response_last_page =  distro_data.last_page;
+                $scope.response_more_available = distro_data.more_available;
+                /*console.log('Server response --> ')
+                console.log($scope.package_count)
+                console.log($scope.response_current_page)
+                console.log($scope.response_last_page)
+                console.log($scope.response_more_available)
+                */
+                if($scope.package_count == 0){
+                    console.log('Fetch remaining - but recived empty package_count')
+                }
+                else{
+                    package_data = distro_data.packages;
+                    for(var i = 0; i < package_data.length; i++){
+                        package_data[i].P = decodeURI(package_data[i].P);
+                        $scope.packages_all.push(package_data[i]);
+                    }
+                }
+                $scope.fetchRemaining();
+            },
+            failure: function(data){
+                console.log('Failure')
+                console.log(data)
+                $scope.background_fetch_message = ''
+                /*$scope.loading = false;
+                $scope.no_results_found = 'Your search - "'+ decodeURI($scope.package_name) +'" - did not match any package.' */
+                $scope.$apply();
+            },
+            error: function(req, response_status){
+                console.log('Error')
+                console.log(response_status)
+                $scope.background_fetch_message = ''
+                /*$scope.loading = false;
+                $scope.no_results_found = 'There was a issue contacting server please try again later'*/
+                $scope.$apply();
+            },
+            timeout: 120000 // sets timeout to 120 seconds
+          });
+        }
+        else{
+            console.log('Done fetching all records. Refreshing screen')
+            
+            $scope.computePackageCount(false); //Make an initial 'distro version wise' count
+            $scope.refine_os_list = [];
+            
+            for (v_os in $scope.os_list) {
+                if ($scope.os_list[v_os].type !== 'All' && $scope.os_list[v_os].value) {
+                    $scope.refine_os_list.push({type: $scope.os_list[v_os].type, value: $scope.os_list[v_os].value});
+                }
+            }
+            $scope.filterResults();
+            $scope.loading = false;
+            $scope.background_fetch_message = '';
+            $scope.$apply();
+        }
     }
     
     $scope.computePackageCount = function(countFiltered){

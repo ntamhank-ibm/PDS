@@ -6,6 +6,8 @@ DATA_FILE_LOCATION = '%s/distro_data' % PDS_BASE
 LOG_FILE_LOCATION = '%s/log/pds.log' % PDS_BASE
 MIN_DATA_FILE_SIZE = 50000
 MAX_RECORDS_TO_CONCAT = 5000
+MAX_RECORDS_TO_SEND = 100
+CACHE_SIZE = 10
 
 proxy_user = 'proxy_user'
 proxy_password = 'proxy_password'
@@ -28,7 +30,7 @@ DEBUG
 NOTSET
 Refer https://docs.python.org/2/library/logging.html for more information.
 '''
-DEBUG_LEVEL = logging.ERROR
+DEBUG_LEVEL = logging.DEBUG
 
 SUPPORTED_DISTROS = {
     'Ubuntu': {

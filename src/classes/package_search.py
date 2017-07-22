@@ -3,16 +3,20 @@ import os
 import urllib
 import collections
 import copy 
+import math
 from sets import Set
-from config import DATA_FILE_LOCATION, DISABLE_PAGINATION, MAX_RECORDS_TO_CONCAT, LOGGER
+from config import DATA_FILE_LOCATION, DISABLE_PAGINATION, MAX_RECORDS_TO_CONCAT, LOGGER, MAX_RECORDS_TO_SEND, CACHE_SIZE
 from config import SUPPORTED_DISTROS
 
 
 class PackageSearch:
     package_data = {}
+    local_cache ={}
+    cache_keys = []
     DISTRO_BIT_MAP = {}
     INSTANCE = None
-
+    
+    
     @classmethod
     def getDataFilePath(cls):
         '''This method will resolve the distributions data path based on configuration file to give actual 
@@ -52,6 +56,8 @@ class PackageSearch:
             cls.INSTANCE = PackageSearch()
             cls.INSTANCE.DISTRO_BIT_MAP = cls.loadSupportedDistros()
             cls.INSTANCE.package_data = cls.loadPackageData()
+            cls.INSTANCE.local_cache = {}
+            cls.INSTANCE.cache_keys = []
             LOGGER.debug('get_instance: Creating singleton instance in get_instance')
         return cls.INSTANCE
 
@@ -83,50 +89,84 @@ class PackageSearch:
 
         return json_data
 
-    def searchPackages(self, search_term, exact_match, search_bit_flag):
-        
+    def searchPackages(self, search_term, exact_match, search_bit_flag, page_number = 0):
         LOGGER.debug('searchPackages: In function')
         search_term = urllib.unquote(search_term)
 
-        LOGGER.debug('searchPackages: search_term : %s', search_term)
-        LOGGER.debug('searchPackages: exact_match : %s', exact_match)
+        LOGGER.debug('searchPackages: search_term : %s' % (search_term))
+        LOGGER.debug('searchPackages: exact_match : %s' % (exact_match))
         
         search_packages_begin_with = str(search_term).endswith('*')
         search_packages_end_with = str(search_term).startswith('*')
         search_anywhere_in_packages = (search_packages_begin_with and search_packages_end_with) or ('*' not in str(search_term))
         
-        LOGGER.debug('searchPackages: search_packages_begin_with : %s', search_packages_begin_with)
-        LOGGER.debug('searchPackages: search_packages_end_with : %s', search_packages_end_with)
-        LOGGER.debug('searchPackages: search_anywhere_in_packages : %s', search_anywhere_in_packages)
+        LOGGER.debug('searchPackages: search_packages_begin_with : %s' % (search_packages_begin_with))
+        LOGGER.debug('searchPackages: search_packages_end_with : %s' % (search_packages_end_with))
+        LOGGER.debug('searchPackages: search_anywhere_in_packages : %s' % (search_anywhere_in_packages))
         
         search_term = search_term.replace('*', '')
         search_term_ucase = search_term.upper()
-        print "Starting : " + search_term
-        cache_key = ''
-        if (exact_match.lower() == 'true'):
-            LOGGER.debug('searchPackages: Doing exact search')
-            preliminary_results = filter(lambda s: s['P'] == search_term and (s['B'] & search_bit_flag) > 0, self.INSTANCE.package_data)
-        elif search_anywhere_in_packages:
-            LOGGER.debug('searchPackages: Doing Anywhere Search')
-            preliminary_results = filter(lambda s: search_term_ucase in s['S'] and (s['B'] & search_bit_flag) > 0, self.INSTANCE.package_data)
-        elif search_packages_begin_with:
-            LOGGER.debug('searchPackages: find names that begin with')
-            preliminary_results = filter(lambda s: str(s['S']).startswith(search_term_ucase) and (s['B'] & search_bit_flag) > 0, self.INSTANCE.package_data)
-        elif search_packages_end_with:
-            LOGGER.debug('searchPackages: find names that end with')
-            preliminary_results = filter(lambda s: str(s['S']).endswith(search_term_ucase) and (s['B'] & search_bit_flag) > 0, self.INSTANCE.package_data)
-
-        LOGGER.debug('searchPackages: Search on package name and bit search : %s', len(preliminary_results))
-
-        final_results = copy.deepcopy(preliminary_results);
-        for pkg in final_results:
-            del pkg['S']
         
+        cache_key = 'ck_%s_%s_%s' % (search_term, exact_match, search_bit_flag)
+        if( self.INSTANCE.local_cache.has_key(cache_key) == False ):
+            LOGGER.debug('searchPackages: not available in cache, so make fresh search')
+            if (exact_match.lower() == 'true'):
+                LOGGER.debug('searchPackages: Doing exact search')
+                preliminary_results = filter(lambda s: s['P'] == search_term and (s['B'] & search_bit_flag) > 0, self.INSTANCE.package_data)
+            elif search_anywhere_in_packages:
+                LOGGER.debug('searchPackages: Doing Anywhere Search')
+                preliminary_results = filter(lambda s: search_term_ucase in s['S'] and (s['B'] & search_bit_flag) > 0, self.INSTANCE.package_data)
+            elif search_packages_begin_with:
+                LOGGER.debug('searchPackages: find names that begin with')
+                preliminary_results = filter(lambda s: str(s['S']).startswith(search_term_ucase) and (s['B'] & search_bit_flag) > 0, self.INSTANCE.package_data)
+            elif search_packages_end_with:
+                LOGGER.debug('searchPackages: find names that end with')
+                preliminary_results = filter(lambda s: str(s['S']).endswith(search_term_ucase) and (s['B'] & search_bit_flag) > 0, self.INSTANCE.package_data)
+
+            final_results = copy.deepcopy(preliminary_results);
+            for pkg in final_results:
+                del pkg['S']
+                
+            LOGGER.debug('searchPackages: Search on package name and bit search : %s' % (len(final_results)))
+            
+            if(len(final_results) > MAX_RECORDS_TO_SEND): #This is a large result set to cache it
+                LOGGER.debug('searchPackages: Result is large to cache it')
+                if(len(self.INSTANCE.local_cache.keys()) >= CACHE_SIZE): #CACHE_SIZE is breached so remove oldest cached object
+                    #LOGGER.debug('searchPackages: Cache full. So remove the oldest item. Total of Cached Items: %s' % (len(self.INSTANCE.local_cache.keys()))
+                    self.INSTANCE.local_cache.pop(self.INSTANCE.cache_keys[0],None) #self.INSTANCE.cache_keys[0] has the Oldest Cache Key
+                    self.INSTANCE.cache_keys.remove(self.INSTANCE.cache_keys[0]) #Remoe the cache_key from cache_keys for it is removed from local_cache
+                
+                LOGGER.debug('searchPackages: Save new cache_key in cache_keys list for indexing.  Key is %s' % (cache_key))
+                self.INSTANCE.cache_keys.append(cache_key)     #append the new key to the list of cache_keys
+                self.INSTANCE.local_cache[cache_key] = final_results
+                
+        else:
+            LOGGER.debug('searchPackages: Getting from cache')
+            final_results = self.INSTANCE.local_cache[cache_key];
+            
+
         LOGGER.debug('searchPackages: Applied pagination changes')
+        
+        totalLength = len(final_results)
+        
+        last_page = math.ceil(totalLength/float(MAX_RECORDS_TO_SEND))
+        
+        if (totalLength <= MAX_RECORDS_TO_SEND):
+            LOGGER.debug('searchPackages: Sending all records')
+            results = final_results
+        else:
+            startIdx = page_number*MAX_RECORDS_TO_SEND
+            endIdx = (page_number*MAX_RECORDS_TO_SEND)+MAX_RECORDS_TO_SEND
+            LOGGER.debug('searchPackages: Sending records %s of %s' % (startIdx,endIdx))
+            results = final_results[startIdx:endIdx]
+            last_page = math.ceil(totalLength/MAX_RECORDS_TO_SEND)
 
         final_data = {
-            'total_packages': len(final_results),
-            'packages': final_results
+            'total_packages': totalLength,
+            'current_page': page_number,
+            'last_page': last_page,
+            'more_available': totalLength != len(results),
+            'packages': results
         }
 
         LOGGER.debug('searchPackages: Sending final data to calling function')
@@ -135,7 +175,6 @@ class PackageSearch:
 
         return json.dumps(final_data)
 
-        
     def getPackagesFromURL(self, package_name, exact_match, page_number, page_size, sort_key = 'name', reverse = 0, distro_bit_search_mapping_vals = 0):
         '''
         This API will try to read from JSON files for various distros 

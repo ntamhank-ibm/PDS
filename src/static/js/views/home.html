@@ -57,6 +57,12 @@
       <div class="customfont"  ng-show="pagedItems.length > 0">
         <table class="table table-condensed table-hover">
           <thead>
+            <tr ng-show="background_fetch_message.length > 0">
+              <td colspan="3">
+                <span class="alert alert-warning" >{{ background_fetch_message }}</span>
+                <input type="button" class="btn btn-small btn-warning" value="Stop and display available list" ng-click="forced_stop = true;" />
+              </td>
+            </tr>
             <tr>
               <td colspan="3">
                 <div>
@@ -98,7 +104,8 @@
                           <a href ng-click="lastPage()">Last >></a>
                         </li>
                     </ul>
-                    <p style="margin-top:0px;margin-bottom:0px;">Found <b>{{ filteredItems.length }}</b> packages. Displaying Page <b>{{ currentPage + 1 }}</b> of <b>{{ pagedItems.length }}</b></p>
+                    <p ng-show="background_fetch_message.length == 0" style="margin-top:0px;margin-bottom:0px;">Found <b>{{ filteredItems.length }}</b> packages. Displaying Page <b>{{ currentPage + 1 }}</b> of <b>{{ pagedItems.length }}</b></p>
+                    <p ng-show="background_fetch_message.length > 0" class="alert alert-warning" style="margin-top:0px;margin-bottom:0px;">Displaying initial <b>{{ filteredItems.length }}</b> packages. Displaying Page <b>{{ currentPage + 1 }}</b> of <b>{{ pagedItems.length }}</b></p>
                 </div>
               </td>
             </tr>
