@@ -11,6 +11,7 @@ app = Flask(__name__)
 package_search = PackageSearch.load()
 
 @app.route('/')
+@app.route('/pds/faq')
 @app.route('/pds/')
 def index():
     return render_template('index.html')
@@ -46,3 +47,4 @@ if __name__ == '__main__':
         app.debug = True
 
     app.run(host=server_host, port=server_port)
+
