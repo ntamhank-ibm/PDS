@@ -128,12 +128,16 @@ Following configuration settings can be managed in `/opt/PDS/src/config/config.p
         
         <server_port> - PDS port on which application will be accessible to end users
 
-        <DISTROS_WITH_BIT_REP> - Mapping of all the supported distros, new distros added need to be mapped here.
+        <SUPPORTED_DISTROS> - Mapping of all the supported distros, new distros added need to be mapped here.
+
+        <MAX_RECORDS_TO_SEND> = Max number of records returned to the client. Defaults to 100
+
+        <CACHE_SIZE> - Number of searches to be cached. Default to 10
 
 _**NOTE:**_
 * In order to add new distribution support refer [here](Adding_new_distros.md)
 
-In case any of the parameters are updated, the server needs to be restarted:
+In case any of the parameters are updated, the server has to be restarted:
 
 * SLES (12 SP1, 12 SP2) and Ubuntu (16.04, 16.10, 17.04):
 

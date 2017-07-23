@@ -15,7 +15,7 @@
         What is PDS?
       </div>
       <div class="list-group-item" ng-show="questionState(1)">
-        <p>PDS, or Package Distribution Search tool, helps you to search for available packages across OS distributions in a single user interface. Current version of PDS is v1.3</p>
+        <p>PDS, or Package Distribution Search tool, helps you to search for available packages across OS distributions in a single user interface. Current version of PDS is v1.4</p>
       </div>
       <div class="list-group-item list-group-item-info ng-class:{'active': questionState(2), 'glyphicon-minus':questionState(2), 'glyphicon-plus':!questionState(2)};"  ng-click="clickQuestion(2)"> <!--ng-class="[list-group-item, { 'active':questionState(2) } ]"-->
         Which operating systems does PDS support?
@@ -78,9 +78,17 @@
         <p>To get packages which exactly matches the search keyword, click on the hyperlink &quot;Search &lt;keyword&gt; (Exact Match)&quot; after entering search keyword</p>
       </div>
       <div class="list-group-item list-group-item-info ng-class:{'active': questionState(8), 'glyphicon-minus':questionState(8), 'glyphicon-plus':!questionState(8)};"  ng-click="clickQuestion(8)">
-        What package details does PDS display in the search results?
+        How can I refine my search results?
       </div>
       <div class="list-group-item" ng-show="questionState(8)">
+        <p>For every successful search, PDS displays a panel next to the results grid.  You may enter a few characters of Package Name or Version in the 'Refine your results' text box and the results will be filtered automatically as you type.</p>
+        <p>Similarly you may select or unselect the specific Distro Versions under "Filter distribution" to locate the necessary package.</p>
+        <p>PDS displays a cout of displayed packages and total packages found per Distro Version for your help.</p>
+      </div>
+      <div class="list-group-item list-group-item-info ng-class:{'active': questionState(9), 'glyphicon-minus':questionState(9), 'glyphicon-plus':!questionState(9)};"  ng-click="clickQuestion(9)">
+        What package details does PDS display in the search results?
+      </div>
+      <div class="list-group-item" ng-show="questionState(9)">
         <p>PDS displays the following package details in the search results:
            <ul>
            <li>Package Name</li>
@@ -89,16 +97,16 @@
            </ul>
         </p>
       </div>
-      <div class="list-group-item list-group-item-info ng-class:{'active': questionState(9), 'glyphicon-minus':questionState(9), 'glyphicon-plus':!questionState(9)};"  ng-click="clickQuestion(9)">
+      <div class="list-group-item list-group-item-info ng-class:{'active': questionState(10), 'glyphicon-minus':questionState(10), 'glyphicon-plus':!questionState(10)};"  ng-click="clickQuestion(10)">
         How accurate is the package information that PDS provides?
       </div>
-      <div class="list-group-item" ng-show="questionState(9)">
+      <div class="list-group-item" ng-show="questionState(10)">
         <p>The package information is regularly updated. It is accurate as on the date of the update. However, the information might become obsolete between updates. To obtain the most current package information, go to the official Linux distribution websites.</p>
       </div>
-      <div class="list-group-item list-group-item-info ng-class:{'active': questionState(10), 'glyphicon-minus':questionState(10), 'glyphicon-plus':!questionState(10)};"  ng-click="clickQuestion(10)">
+      <div class="list-group-item list-group-item-info ng-class:{'active': questionState(11), 'glyphicon-minus':questionState(11), 'glyphicon-plus':!questionState(11)};"  ng-click="clickQuestion(11)">
         Where can I find more information on running Linux open source packages on IBM LinuxONE and IBM z Systems?
       </div>
-      <div class="list-group-item" ng-show="questionState(10)">
+      <div class="list-group-item" ng-show="questionState(11)">
         <p>More information on open source packages that have been ported and/or validated on corresponding distro versions by IBM could be found on <a href="https://www.ibm.com/developerworks/community/forums/html/topic?id=5dee144a-7c64-4bfe-884f-751d6308dbdf">Forum</a> from <a href="https://www.ibm.com/developerworks/community/groups/community/lozopensource">Community</a>.</p>
       </div>
     </div>

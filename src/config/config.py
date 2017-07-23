@@ -30,7 +30,7 @@ DEBUG
 NOTSET
 Refer https://docs.python.org/2/library/logging.html for more information.
 '''
-DEBUG_LEVEL = logging.DEBUG
+DEBUG_LEVEL = logging.ERROR
 
 SUPPORTED_DISTROS = {
     'Ubuntu': {
