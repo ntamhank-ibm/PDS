@@ -3,9 +3,9 @@
     <div class="col-md-12">
       <div class="input_group distrolist" >
         <!--<pre>{{ os_versions_list | json }} </pre>-->
-        <div>Select linux distribution:</div>
-          <span ng-repeat="os_name in os_list">
-            <label style="padding-left:10px;"><input style="margin-right:2px;" type="checkbox" ng-model="os_name.value" ng-if="os_name.type === 'All'"  ng-click="tickUntick($event);" id="chkAll" >
+        <div style="font-size:14px;font-weight:bold;">Select linux distribution:</div>
+          <span ng-repeat="os_name in os_list" style="font-size:12px;">
+            <label style="padding-left:10px;font-weight:normal;"><input style="margin-right:2px;" type="checkbox" ng-model="os_name.value" ng-if="os_name.type === 'All'"  ng-click="tickUntick($event);" id="chkAll" >
             <input style="margin-right:3px;" type="checkbox" ng-model="os_name.value"  ng-checked="os_name.value" ng-if="os_name.type !== 'All'" ng-click="tickUntick($event);">{{os_name.type}}</label>
           </span>
       </div>
@@ -15,7 +15,7 @@
         <a class="btn btn-small btn-info"  href="javascript:void(0);" ng-click="searchPackages(null, 'exactSearch', true);" ng-hide="package_name.length <= 0">Search Exact</a>
       </div>
       <div class="h6">         
-        <summary><label id="help_text">Enter the name of the package or at least three characters to enable pattern search.  Wildcard ('*') can be used either before or after the search keywords. </label></summary>
+        <summary><label id="help_text" style="padding-left:10px;">Enter the name of the package or at least three characters to enable pattern search.  Wildcard ('*') can be used either before or after the search keywords. </label></summary>
         <summary><label id="error_message" ng-model="error_message"  ng-show="error_message.length > 0" style="color:red;">{{ error_message }}</label></summary>
       </div> 
     </div>
@@ -29,7 +29,7 @@
 <div class="container-fluid" ng-show="packages_all.length > 0">
   <div class="row">
     <div class="col-xs-12 col-sm-4 col-md-4 col-lg-3 sidebar" > <!--sidebar  style="margin-top:200px;" -->
-      <div class="list-group refinemarginlefttenpx">
+      <div class="list-group refinemarginlefttenpx" style="padding-top:10px;">
         <label class="active">Refine your results:</label>
         <input id="refinesearch" type="text" class="list-group-item form-control refinesearch" style="height:50px;" ng-model="refine_package_name" ng-change="filterResults()" placeholder="Refine package name/version">
       </div>
@@ -43,7 +43,7 @@
             <label ng-click="toggle_child_filters(os_name.type);" ng-class="{'glyphicon-minus':display_child_filters(os_name.type), 'glyphicon-plus':!display_child_filters(os_name.type)}">&nbsp;{{ os_name.type }}</label> <!-- -->
           </span>
           <div id="" ng-repeat="os_ver_name in os_versions_list[os_name.type]" ng-show="display_child_filters(os_name.type);"> <!-- -->
-            <label class="list-group-item">
+            <label class="list-group-item" style="padding-left:5px;font-weight:normal;">
               <input type="checkbox" class="distroversioncheck" ng-model="os_ver_name.value" ng-click="filterResults()">{{os_ver_name.type}}&nbsp - ({{ os_ver_name.value ? os_ver_name.filtercount : 0 }}/{{ os_ver_name.count }})
             </label>
           </div>
