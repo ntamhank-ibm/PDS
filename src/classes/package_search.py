@@ -199,13 +199,21 @@ class PackageSearch:
             LOGGER.debug('searchPackages: Sending all records')
             results = final_results
         else:
-            startIdx = page_number*MAX_RECORDS_TO_SEND
-            endIdx = (page_number*MAX_RECORDS_TO_SEND)+MAX_RECORDS_TO_SEND
-            LOGGER.debug('searchPackages: Sending records %s of %s and length of results is %s' % (startIdx,endIdx,totalLength))
-            results = final_results[startIdx:endIdx]
-            last_page = math.ceil(totalLength/MAX_RECORDS_TO_SEND)
-            LOGGER.debug('searchPackages: Applied pagination changes')
-
+            if(page_number == 0):
+                startIdx = page_number*MAX_RECORDS_TO_SEND
+                endIdx = (page_number*MAX_RECORDS_TO_SEND)+MAX_RECORDS_TO_SEND
+                LOGGER.debug('searchPackages: Sending records %s of %s and length of results is %s' % (startIdx,endIdx,totalLength))
+                results = final_results[startIdx:endIdx]
+                last_page = 1#math.ceil(totalLength/MAX_RECORDS_TO_SEND)
+                LOGGER.debug('searchPackages: Applied pagination changes')
+            else:
+                startIdx = page_number*MAX_RECORDS_TO_SEND
+                endIdx = totalLength #(page_number*MAX_RECORDS_TO_SEND)+MAX_RECORDS_TO_SEND
+                LOGGER.debug('searchPackages: Sending records %s of %s and length of results is %s' % (startIdx,endIdx,totalLength))
+                results = final_results[startIdx:endIdx]
+                last_page = 1#math.ceil(totalLength/MAX_RECORDS_TO_SEND)
+                LOGGER.debug('searchPackages: Applied pagination changes')
+                
         final_data = {
             'total_packages': totalLength,
             'current_page': page_number,

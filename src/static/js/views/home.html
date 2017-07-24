@@ -60,7 +60,7 @@
             <tr ng-show="background_fetch_message.length > 0">
               <td colspan="3">
                 <span class="alert alert-warning" >{{ background_fetch_message }}</span>
-                <input type="button" class="btn btn-small btn-warning" value="Stop and display available list" ng-click="forced_stop = true;" />
+                <input type="button" class="btn btn-small btn-warning" value="Stop and display available list" ng-click="forced_stop = true;xhr.abort()" />
               </td>
             </tr>
             <tr>

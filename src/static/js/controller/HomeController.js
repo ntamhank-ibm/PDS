@@ -45,6 +45,7 @@ var HomeController = function($scope) {
     $scope.request_next_page = 0;
     $scope.background_fetch_message = ''
     $scope.forced_stop = false;
+    $scope.xhr = null;
     
     // Get the package information data from the server and process it for display
     $.ajax({
@@ -323,6 +324,38 @@ var HomeController = function($scope) {
           });
     }
     
+    handleResponse = function(data){
+        //console.log('Success')
+        try{
+            distro_data = JSON.parse(data);
+        }
+        catch(e){
+            console.log(e);
+            distro_data = data;
+        }
+        $scope.package_count = distro_data.total_packages;
+        $scope.response_current_page = distro_data.current_page;
+        $scope.response_last_page =  distro_data.last_page;
+        $scope.response_more_available = distro_data.more_available;
+        /*console.log('Server response --> ')
+        console.log($scope.package_count)
+        console.log($scope.response_current_page)
+        console.log($scope.response_last_page)
+        console.log($scope.response_more_available)
+        */
+        if($scope.package_count == 0){
+            console.log('Fetch remaining - but received empty package_count')
+        }
+        else{
+            package_data = distro_data.packages;
+            for(var i = 0; i < package_data.length; i++){
+                package_data[i].P = decodeURI(package_data[i].P);
+                $scope.packages_all.push(package_data[i]);
+            }
+        }
+        $scope.fetchRemaining();
+    }
+    
     $scope.fetchRemaining = function() {
         /*
         $scope.package_count
@@ -330,55 +363,25 @@ var HomeController = function($scope) {
         $scope.response_last_page
         $scope.response_more_available
         */
-        $scope.background_fetch_message = 'Please Wait. Received ' + $scope.packages_all.length + ' package details out of ' + $scope.package_count;
+        $scope.background_fetch_message = 'Please wait! Currently displaying ' + $scope.packages_all.length + ' packages out of ' + $scope.package_count;
         $scope.$apply();
         if(($scope.response_current_page < $scope.response_last_page) && $scope.response_more_available && $scope.forced_stop == false) {
             $scope.request_next_page += 1
             newURL = api_request_url + '&page_number=' + $scope.request_next_page
-            console.log(newURL)
-            $.ajax({
+            //console.log(newURL)
+            $scope.xhr = $.ajax({
             url: newURL,
-            success: function(data){
-                console.log('Success')
-                try{
-                    distro_data = JSON.parse(data);
-                }
-                catch(e){
-                    console.log(e);
-                    distro_data = data;
-                }
-                $scope.package_count = distro_data.total_packages;
-                $scope.response_current_page = distro_data.current_page;
-                $scope.response_last_page =  distro_data.last_page;
-                $scope.response_more_available = distro_data.more_available;
-                /*console.log('Server response --> ')
-                console.log($scope.package_count)
-                console.log($scope.response_current_page)
-                console.log($scope.response_last_page)
-                console.log($scope.response_more_available)
-                */
-                if($scope.package_count == 0){
-                    console.log('Fetch remaining - but recived empty package_count')
-                }
-                else{
-                    package_data = distro_data.packages;
-                    for(var i = 0; i < package_data.length; i++){
-                        package_data[i].P = decodeURI(package_data[i].P);
-                        $scope.packages_all.push(package_data[i]);
-                    }
-                }
-                $scope.fetchRemaining();
-            },
+            success: handleResponse,
             failure: function(data){
-                console.log('Failure')
-                console.log(data)
+                //console.log('Failure')
+                //console.log(data)
                 $scope.background_fetch_message = ''
                 /*$scope.loading = false;
                 $scope.no_results_found = 'Your search - "'+ decodeURI($scope.package_name) +'" - did not match any package.' */
                 $scope.$apply();
             },
             error: function(req, response_status){
-                console.log('Error')
+                //console.log('Error')
                 console.log(response_status)
                 $scope.background_fetch_message = ''
                 /*$scope.loading = false;
