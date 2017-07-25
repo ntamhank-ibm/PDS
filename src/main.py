@@ -1,4 +1,4 @@
-from flask import Flask, request, render_template, json
+from flask import Flask, request, render_template, json, Response, make_response
 import logging
 
 from config import server_host, server_port
@@ -14,13 +14,22 @@ package_search = PackageSearch.load()
 @app.route('/pds/faq')
 @app.route('/pds/')
 def index():
-    return render_template('index.html')
+    resp = make_response(render_template('index.html'))
+    resp.headers.set('Cache-Control','no-cache, no-store, must-revalidate')
+    resp.headers.set('Pragma','no-cache')
+    resp.headers.set('Expires','0')
+    return resp
 
 @app.route('/getSupportedDistros')
 @app.route('/pds/getSupportedDistros')
 def getSupportedDistros():
     package_search = PackageSearch.load()
-    return json.dumps(package_search.getSupportedDistros())
+    json_data = json.dumps(package_search.getSupportedDistros())
+    resp = Response(json_data,mimetype="application/json")
+    resp.headers.set('Cache-Control','no-cache, no-store, must-revalidate')
+    resp.headers.set('Pragma','no-cache')
+    resp.headers.set('Expires','0')
+    return resp
 
 @app.route('/searchPackages')
 @app.route('/pds/searchPackages')
@@ -32,13 +41,20 @@ def searchPackages():
     page_number = 0
     try:
         search_term = str(request.args.get('search_term', ''))
+        search_term = search_term.lstrip().rstrip()
         exact_match = request.args.get('exact_match', False)
         search_bit_flag = int(request.args.get('search_bit_flag', '0'))
         page_number = int(request.args.get('page_number', '0'))
+        
+        json_data = package_search.searchPackages(search_term, exact_match, search_bit_flag, page_number)   
+        resp = Response(json_data,mimetype="application/json")
+        resp.headers.set('Cache-Control','no-cache, no-store, must-revalidate')
+        resp.headers.set('Pragma','no-cache')
+        resp.headers.set('Expires','0')
+        return resp
     except Exception as ex:
         LOGGER.error('Error in searchPackages with search parameters: %s', str(ex))
 
-    return package_search.searchPackages(search_term, exact_match, search_bit_flag, page_number)   
 
 # Logic to start flask server if executed via command line.
 if __name__ == '__main__':

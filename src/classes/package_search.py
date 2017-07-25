@@ -137,6 +137,16 @@ class PackageSearch:
         LOGGER.debug('searchPackages: In function')
         search_term = urllib.unquote(search_term)
 
+        if(len(search_term) == 0 or search_term.replace('*','') == ''):
+            final_data = {
+            'total_packages': 0,
+            'current_page': 0,
+            'last_page': 0,
+            'more_available': False,
+            'packages': []
+            }
+            return json.dumps(final_data)
+            
         LOGGER.debug('searchPackages: search_term : %s' % (search_term))
         LOGGER.debug('searchPackages: exact_match : %s' % (exact_match))
         LOGGER.debug('searchPackages: search_bit_flag : %s' % (search_bit_flag))

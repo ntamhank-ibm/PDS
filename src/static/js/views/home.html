@@ -25,7 +25,7 @@
 <div class="container" ng-show="no_results_found.length > 0">
   <h4 class="text-danger">{{no_results_found}}</h4>
 </div>
-<div ng-show="loading" class="loading" style="padding-left:49%"><div ng-show="loading" class="overlay"></div><img  src="/static/images/ajax-loader.gif"></div>
+<div ng-show="loading" class="loading" style="padding-left:49%"><div ng-show="loading" class="overlay"></div><img  src="/static/images/ajax-loader.gif"/><div>{{ main_request_progress}}</div></div>
 <div class="container-fluid" ng-show="packages_all.length > 0">
   <div class="row">
     <div class="col-xs-12 col-sm-4 col-md-4 col-lg-3 sidebar" > <!--sidebar  style="margin-top:200px;" -->
@@ -42,9 +42,9 @@
             </label>
             <label ng-click="toggle_child_filters(os_name.type);" ng-class="{'glyphicon-minus':display_child_filters(os_name.type), 'glyphicon-plus':!display_child_filters(os_name.type)}">&nbsp;{{ os_name.type }}</label> <!-- -->
           </span>
-          <div id="" ng-repeat="os_ver_name in os_versions_list[os_name.type]" ng-show="display_child_filters(os_name.type);"> <!-- -->
+          <div ng-repeat="os_ver_name in os_versions_list[os_name.type]" ng-show="display_child_filters(os_name.type);"> <!-- -->
             <label class="list-group-item" style="padding-left:5px;font-weight:normal;">
-              <input type="checkbox" class="distroversioncheck" ng-model="os_ver_name.value" ng-click="filterResults()">{{os_ver_name.type}}&nbsp - ({{ os_ver_name.value ? os_ver_name.filtercount : 0 }}/{{ os_ver_name.count }})
+              <input type="checkbox" class="distroversioncheck" ng-model="os_ver_name.value" ng-click="tickUntickRefineCheckboxes(os_name.type,os_ver_name.type,os_ver_name.value)" >{{os_ver_name.type}}&nbsp - ({{ os_ver_name.value ? os_ver_name.filtercount : 0 }}/{{ os_ver_name.count }})
             </label>
           </div>
         </div>  
@@ -59,8 +59,8 @@
           <thead>
             <tr ng-show="background_fetch_message.length > 0">
               <td colspan="3">
-                <span class="alert alert-warning" >{{ background_fetch_message }}</span>
-                <input type="button" class="btn btn-small btn-warning" value="Stop and display available list" ng-click="forced_stop = true;xhr.abort()" />
+                <!--<span class="alert alert-warning" >{{ background_fetch_message }}</span>-->
+                <input type="button" class="btn btn-small btn-warning" value="{{ background_fetch_message }}" ng-click="forced_stop = true;xhr.abort()" />
               </td>
             </tr>
             <tr>
@@ -115,7 +115,7 @@
               <td>{{item.P}}</td>
               <td>{{item.V}}</td>
               <td>{{getDisplayDistro(item)}}</td>
-              <!-- <td></td> -->
+              <!-- <td>    </td> -->
             </tr>
           </tbody>
         </table>
