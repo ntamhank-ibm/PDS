@@ -373,69 +373,6 @@ var HomeController = function($scope) {
         $scope.xhr.open("GET",api_request_url,true);
         $scope.main_request_progress = '0%'
         $scope.xhr.send();
-        
-        // Get the package information data from the server and process it for display
-        /*
-        $.ajax({
-            url: api_request_url,
-            success: function(data){
-                try{
-                    distro_data = JSON.parse(data);
-                    
-                    $scope.package_count = distro_data.total_packages;
-                    $scope.response_current_page = distro_data.current_page;
-                    $scope.response_last_page =  distro_data.last_page;
-                    $scope.response_more_available = distro_data.more_available;
-                    $scope.request_next_page = 0
-                    
-                    if($scope.package_count == 0){
-                        $scope.no_results_found = 'Your search - "'+ decodeURI($scope.package_name) +'" - did not match any package.'
-                        $scope.packages_all = [];
-                    }
-                    else{
-                        package_data = distro_data.packages;
-                        packages_all = [];
-                        for(var i = 0; i < package_data.length; i++){
-                            package_data[i].P = decodeURI(package_data[i].P);
-                            packages_all.push(package_data[i]);
-                        }
-                        $scope.packages_all = packages_all;
-                        $scope.no_results_found = '';
-                    }
-                    $scope.computePackageCount(false); //Make an initial 'distro version wise' count
-                    $scope.refine_os_list = [];
-                    
-                    for (v_os in $scope.os_list) {
-                        if ($scope.os_list[v_os].type !== 'All' && $scope.os_list[v_os].value) {
-                            $scope.refine_os_list.push({type: $scope.os_list[v_os].type, value: $scope.os_list[v_os].value});
-                        }
-                    }
-                    $scope.filterResults();
-                    $scope.loading = false;
-                    $scope.$apply();
-                    $scope.forced_stop = false;
-                    $scope.fetchRemaining();
-                }
-                catch(e){
-                    console.log(e);
-                    console.log('Data Received: ' + data);
-                    $scope.no_results_found = 'There was an issue contacting server. Please try again.'
-                    $scope.loading = false;
-                    $scope.$apply();
-                }
-            },
-            failure: function(data){
-                $scope.loading = false;
-                $scope.no_results_found = 'Your search - "'+ decodeURI($scope.package_name) +'" - did not match any package.'
-                $scope.$apply();
-            },
-            error: function(req, response_status){
-                $scope.loading = false;
-                $scope.no_results_found = 'There was a issue contacting server please try again later'
-                $scope.$apply();
-            },
-            timeout: 60000 // sets timeout to 60 seconds
-          });*/
     }
     
     handleResponse = function(status,data){
