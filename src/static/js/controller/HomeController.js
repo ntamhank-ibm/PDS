@@ -228,13 +228,11 @@ var HomeController = function($scope) {
         var search_bit_flag = 0;
         for(rec in $scope.os_list){
             if($scope.os_list[rec].type != 'All'){
-                if(!$scope.os_list[rec].value){
-                    /* This needs to be done because, previous search may have refined based on certain distro versions and this search has not selected that distro, so to avoid incorrect refinement, just exlude these specific versions*/
-                    for(distro_version_record in $scope.os_versions_list[$scope.os_list[rec].type]){
-                        $scope.os_versions_list[$scope.os_list[rec].type][distro_version_record]['value'] = false;
-                    }
+                $scope.os_wise_accordion_checkboxes[$scope.os_list[rec].type] = $scope.os_list[rec].value;
+                for(distro_version_record in $scope.os_versions_list[$scope.os_list[rec].type]){
+                    $scope.os_versions_list[$scope.os_list[rec].type][distro_version_record]['value'] = $scope.os_list[rec].value;
                 }
-                else {
+                if($scope.os_list[rec].value){
                     for(distro_version_record in $scope.supported_oses_list[$scope.os_list[rec].type]){
                         search_bit_flag += $scope.supported_oses_list[$scope.os_list[rec].type][distro_version_record]
                     }
@@ -357,7 +355,7 @@ var HomeController = function($scope) {
         $scope.response_current_page = 0;
         $scope.response_last_page =  0;
         $scope.response_more_available = false;
-        
+        $scope.refine_package_name = ""; //2017-08-22 - No need to honor previous refinement
         $scope.loading = true;
         $scope.main_request_progress = '';
         if($scope.xhr !== undefined){
@@ -369,7 +367,6 @@ var HomeController = function($scope) {
         $scope.xhr = new XMLHttpRequest();
         $scope.xhr.onreadystatechange=handleStateChangeMainSearch;
         $scope.xhr.addEventListener("progress", handleProgressEventMainSearch);
-        //$scope.xhr.addEventListener("abort", handleAbortEvent);
         $scope.xhr.open("GET",api_request_url,true);
         $scope.main_request_progress = '0%'
         $scope.xhr.send();
