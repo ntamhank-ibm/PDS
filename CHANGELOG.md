@@ -1,6 +1,19 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## v1.4
+### Features
+- Responsive UI - Displays well on wide range of display devices including mobile devices
+
+### Enhancements
+- New UI to provide results refinement, provide additional details about package availability by distro version
+- New UI displays FAQ in accordion view
+- Fetch results in background of results are too much
+- Updated search API signiture to reflect correct paramters
+- PDS can now also be accessed on root (e.g. http://<server>[:port]/ ) instead of /pds route.
+- Now using 'Response' module to set response headers correctly
+- Remvoed 'Disclaimer' controller
+
 ## v1.3
 ### Features:
 - Added SUSE Package Hub support
