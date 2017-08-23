@@ -164,7 +164,8 @@ class PackageSearch:
         
         search_term = search_term.replace('*', '')
         search_term_ucase = search_term.upper()
-        
+       
+        preliminary_results = {}
         if( self.INSTANCE.local_cache.has_key(cache_key) == False ):
             LOGGER.debug('searchPackages: Not available in cache, so make fresh search')
             if (exact_match.lower() == 'true'):
