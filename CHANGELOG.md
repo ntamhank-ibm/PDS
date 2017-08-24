@@ -12,7 +12,7 @@ All notable changes to this project will be documented in this file.
 - Updated search API signiture to reflect correct paramters
 - PDS can now also be accessed on root (e.g. http://<server>[:port]/ ) instead of /pds route.
 - Now using 'Response' module to set response headers correctly
-- Remvoed 'Disclaimer' controller
+- Removed 'Disclaimer' controller
 
 ## v1.3
 ### Features:
