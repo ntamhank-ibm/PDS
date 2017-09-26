@@ -1,0 +1,43 @@
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-md-6" style="padding:20px;">
+      <h4>PDS Usage Statistics</h4>
+    </div>
+    <div class="col-md-6" style="padding:20px;">
+      
+    </div>
+  </div>
+</div>
+<div class="container-fluid">
+  <div class="row" ng-show="group_by == GROUPBY_KEYWORD">
+    <div class="container-fluid">
+      <p class="lead">Number of search requests by Keywords or Search Terms</p>
+      <ul>
+        <span ng-repeat="kd in keyword_data">
+          <span class="lead">&nbsp;&nbsp;{{kd["keyword"]}} <span class="badge">{{kd["usage"]}}</span></span>
+        </span>
+      </ul>
+    </div>
+  </div>
+  <div class="row" ng-show="group_by == GROUPBY_IP">
+    <div class="container-fluid">
+      <p class="lead">Number of search requests by IP Address</p>
+      <ul>
+        <span ng-repeat="kd in ip_data">
+          <span class="lead">&nbsp;&nbsp;{{kd["ip"]}} <span class="badge">{{kd["usage"]}}</span></span>
+        </span>
+      </ul>
+    </div>
+  </div>
+  <div class="row" ng-show="group_by == GROUPBY_DATE">
+    <div class="container-fluid">
+      <p class="lead">Number of search requests by Date</p>
+      <ul>
+        <span ng-repeat="kd in date_data">
+          <span class="lead">&nbsp;&nbsp;{{kd["date"]}} <span class="badge">{{kd["usage"]}}</span></span>
+        </span>
+      </ul>
+    </div>
+  </div>
+</div>
+

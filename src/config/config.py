@@ -19,7 +19,8 @@ server_host = '0.0.0.0'
 server_port = 5000
 
 DISABLE_PAGINATION = False
-
+STATS_FILE_LOCATION = '/opt/PDS/stats'
+STATS_SECRET = ''
 '''
 Following are the various debug levels:
 CRITICAL

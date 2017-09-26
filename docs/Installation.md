@@ -136,6 +136,7 @@ Following configuration settings can be managed in `/opt/PDS/src/config/config.p
 
 _**NOTE:**_
 * In order to add new distribution support refer [here](Adding_new_distros.md)
+* In order to configure PDS usage statistics refer [here](StatsConfig.md)
 
 In case any of the parameters are updated, the server has to be restarted:
 

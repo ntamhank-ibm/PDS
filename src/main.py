@@ -4,7 +4,7 @@ import logging
 from config import server_host, server_port
 from config import LOGGER, DEBUG_LEVEL
 from classes import PackageSearch
-
+from classes import PDSStats
 
 app = Flask(__name__)
 # Ensure that the required JSON data file are pre-loaded in memory at the time of server start.
@@ -19,7 +19,7 @@ def index():
     resp.headers.set('Pragma','no-cache')
     resp.headers.set('Expires','0')
     return resp
-
+    
 @app.route('/getSupportedDistros')
 @app.route('/pds/getSupportedDistros')
 def getSupportedDistros():
@@ -55,6 +55,34 @@ def searchPackages():
     except Exception as ex:
         LOGGER.error('Error in searchPackages with search parameters: %s', str(ex))
 
+
+@app.route('/')
+@app.route('/stats/')
+@app.route('/pds/stats')
+def stats():
+    resp = make_response(render_template('statstemplate.html'))
+    resp.headers.set('Cache-Control','no-cache, no-store, must-revalidate')
+    resp.headers.set('Pragma','no-cache')
+    resp.headers.set('Expires','0')
+    return resp
+        
+@app.route('/getStats')
+@app.route('/pds/getStats')
+def getStats():
+    stats = PDSStats.load()
+    
+    try:
+        group_by = str(request.args.get('group_by', 'keyword'))
+        secret = str(request.args.get('secret', ''))
+        json_data = json.dumps(stats.getStats(group_by,secret))
+        resp = Response(json_data,mimetype="application/json")
+        resp.headers.set('Cache-Control','no-cache, no-store, must-revalidate')
+        resp.headers.set('Pragma','no-cache')
+        resp.headers.set('Expires','0')
+        return resp
+    except Exception as ex:
+        LOGGER.error('Error in searchPackages with search parameters: %s', str(ex))
+   
 
 # Logic to start flask server if executed via command line.
 if __name__ == '__main__':

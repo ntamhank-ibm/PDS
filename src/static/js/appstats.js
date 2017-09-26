@@ -9,14 +9,14 @@ myApp.config(
             rewriteLinks: true
         });
 		$routeProvider.when('/', {
-			templateUrl : '/static/js/views/home.html',
-			controller : 'HomeController'		 
-		}).when('/faq', {
-            templateUrl : '/static/js/views/faq.html',
-            controller : 'FAQController'
+			templateUrl : '/static/js/views/stats.html',
+			controller : 'StatsController'
         }).when('/stats', {
             templateUrl : '/static/js/views/stats.html',
             controller : 'StatsController'
+        }).when('/pds', {
+            templateUrl : '/static/js/views/home.html',
+			controller : 'HomeController'		 
         }).otherwise({
 			redirectTo : '/'
 		});
