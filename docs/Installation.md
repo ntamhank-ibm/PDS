@@ -1,6 +1,6 @@
 # Steps for setting up PDS application on server
 
-The instructions provided below specify the steps for SLES 11 SP4/12/12 SP1/12 SP2 and Ubuntu 16.04/16.10/17.04:
+The instructions provided below specify the steps for SLES 11 SP4/12/12 SP1/12 SP2 and Ubuntu 16.04/17.04/17.10:
 
 _**NOTE:**_
 * make sure you are logged in as user with sudo permissions
@@ -13,13 +13,13 @@ _**NOTE:**_
         sudo easy_install pip
         sudo pip install 'cryptography==1.4' Flask launchpadlib simplejson logging
 
-* For Ubuntu (16.04, 16.10, 17.04):
+* For Ubuntu (16.04, 17.04, 17.10):
 
         sudo apt-get update
         sudo apt-get install -y python python-pip gcc git python-dev libssl-dev libffi-dev cron python-lxml apache2 libapache2-mod-wsgi
         sudo pip install 'cryptography==1.4' Flask launchpadlib simplejson logging
 
-* For SLES (12 SP1, 12 SP2):
+* For SLES (12 SP1, 12 SP2, 12 SP3):
 
         sudo zypper install -y python python-setuptools gcc git libffi-devel python-devel openssl openssl-devel cronie python-xml pyxml tar wget aaa_base which w3m apache2 apache2-devel apache2-worker apache2-mod_wsgi
         sudo easy_install pip
@@ -64,14 +64,14 @@ Note: In case PDS code is already checked out, do the following for latest updat
 
         sudo service pds start
 
-* SLES (12 SP1, 12 SP2) and Ubuntu (16.04, 16.10, 17.04):
+* SLES (12 SP1, 12 SP2, 12 SP3) and Ubuntu (16.04, 17.04, 17.10):
 
     #### Copy the apache configuration file from `/opt/PDS/src/config/pds.conf` into respective apache configuration folder as below
-    * SLES (12 SP1, 12 SP2):
+    * SLES (12 SP1, 12 SP2, 12 SP3):
 
             sudo cp -f /opt/PDS/src/config/pds.conf /etc/apache2/conf.d/pds.conf
 
-    * For Ubuntu (16.04, 16.10, 17.04):
+    * For Ubuntu (16.04, 17.04, 17.10):
 
             sudo cp -f /opt/PDS/src/config/pds.conf /etc/apache2/sites-enabled/pds.conf
             sudo mv /etc/apache2/sites-enabled/000-default.conf /etc/apache2/sites-enabled/z-000-default.conf
@@ -81,7 +81,7 @@ Note: In case PDS code is already checked out, do the following for latest updat
         sudo useradd apache
         sudo groupadd apache
 
-    #### Enable authorization module in apache configuration(Only for SLES 12 SP1, 12 SP2)
+    #### Enable authorization module in apache configuration(Only for SLES 12 SP1, 12 SP2, 12 SP3)
 
         sudo a2enmod mod_access_compat
 
@@ -101,7 +101,7 @@ Note: In case PDS code is already checked out, do the following for latest updat
 _**NOTE:**_ 
 
 * For SLES (11 SP4, 12) by default the port_number will be 5000
-* For SLES (12 SP1, 12 SP2) and Ubuntu (16.04, 16.10, 17.04)  by default the port_number will be 80
+* For SLES (12 SP1, 12 SP2, 12 SP3) and Ubuntu (16.04, 17.04, 17.10)  by default the port_number will be 80
 
 ###  Step 6: (Optional) Custom configuration
 Following configuration settings can be managed in `/opt/PDS/src/config/config.py`:
@@ -140,7 +140,7 @@ _**NOTE:**_
 
 In case any of the parameters are updated, the server has to be restarted:
 
-* SLES (12 SP1, 12 SP2) and Ubuntu (16.04, 16.10, 17.04):
+* SLES (12 SP1, 12 SP2, 12 SP3) and Ubuntu (16.04, 17.04, 17.10):
 
     #### Start/Restart Apache service
 

@@ -1,6 +1,17 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## v1.4.2
+### Features
+- 
+
+### Enhancements
+- Updated FAQ with new SLES distro.
+- Updated data files
+- Updated SUSE Package HUB with support for Sles12-SP3
+- Removed support for Ubuntu 16.10
+- Added Support for Ubuntu 17.10
+
 ## v1.4
 ### Features
 - Responsive UI - Displays well on wide range of display devices including mobile devices

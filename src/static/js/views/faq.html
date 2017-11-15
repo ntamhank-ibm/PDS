@@ -15,7 +15,7 @@
         What is PDS?
       </div>
       <div class="list-group-item" ng-show="questionState(1)">
-        <p>PDS, or Package Distribution Search tool, helps you to search for available packages across OS distributions in a single user interface. Current version of PDS is v1.4</p>
+        <p>PDS, or Package Distribution Search tool, helps you to search for available packages across OS distributions in a single user interface. Current version of PDS is v1.4.2</p>
       </div>
       <div class="list-group-item list-group-item-info ng-class:{'active': questionState(2), 'glyphicon-minus':questionState(2), 'glyphicon-plus':!questionState(2)};"  ng-click="clickQuestion(2)"> <!--ng-class="[list-group-item, { 'active':questionState(2) } ]"-->
         Which operating systems does PDS support?
@@ -23,8 +23,8 @@
       <div class="list-group-item" ng-show="questionState(2)">
         <p>Currently, PDS supports the following operating systems:
         <ul>
-            <li>SUSE Linux Enterprise Server 11 SP4/12 SP1/12 SP2</li>
-            <li>Ubuntu 16.04/16.10/17.04</li>
+            <li>SUSE Linux Enterprise Server (11 SP4,12 SP1,12 SP2,12 SP3)</li>
+            <li>Ubuntu (16.04,17.04,17.10)</li>
         </ul></p>
       </div>
       <div class="list-group-item list-group-item-info ng-class:{'active': questionState(3), 'glyphicon-minus':questionState(3), 'glyphicon-plus':!questionState(3)};"  ng-click="clickQuestion(3)">
@@ -37,8 +37,8 @@
           <li><a href="https://www.suse.com/LinuxPackages/packageRouter.jsp?product=server&version=12&architecture=s390x&package_name=index_all" target="blank">SUSE Linux Enterprise Server 12</a></li>
           <li><a href="https://packagehub.suse.com/#packages" target="blank">SUSE Package Hub</a></li>
           <li><a href="https://launchpad.net/ubuntu/xenial/s390x/" target="blank">Ubuntu 16.04</a></li>
-          <li><a href="https://launchpad.net/ubuntu/yakkety/s390x/" target="blank">Ubuntu 16.10</a></li>
           <li><a href="https://launchpad.net/ubuntu/zesty/s390x/" target="blank">Ubuntu 17.04</a></li>
+          <li><a href="https://launchpad.net/ubuntu/artful/s390x" target="blank">Ubuntu 17.10</a></li>
         </ul>
       </div>
       <div class="list-group-item list-group-item-info ng-class:{'active': questionState(4), 'glyphicon-minus':questionState(4), 'glyphicon-plus':!questionState(4)};"  ng-click="clickQuestion(4)">
@@ -53,8 +53,8 @@
       <div class="list-group-item" ng-show="questionState(5)">
         <p>Currently, PDS works on the following web browsers:
         <ul>
-            <li>Mozilla Firefox 45.7.0</li>
-            <li>Google Chrome 55</li>
+            <li>Mozilla Firefox 47.0.2</li>
+            <li>Google Chrome 61</li>
             <li>Internet Explorer 11</li>
         </ul></p>
       </div>

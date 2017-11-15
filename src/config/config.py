@@ -36,17 +36,19 @@ DEBUG_LEVEL = logging.ERROR
 SUPPORTED_DISTROS = {
     'Ubuntu': {
         '16.04': 'Ubuntu_16_04_Package_List.json',
-        '16.10': 'Ubuntu_16_10_Package_List.json',
-        '17.04': 'Ubuntu_17_04_Package_List.json'
+        '17.04': 'Ubuntu_17_04_Package_List.json',
+        '17.10': 'Ubuntu_17_10_Package_List.json'
     }, 
     'SUSE Linux Enterprise Server': {
         '11 SP4': 'Suse_Linux_Enterprise_Server_11_SP4_Package_List.json',
         '12 SP1': 'Suse_Linux_Enterprise_Server_12_SP1_Package_List.json',
-        '12 SP2': 'Suse_Linux_Enterprise_Server_12_SP2_Package_List.json'
+        '12 SP2': 'Suse_Linux_Enterprise_Server_12_SP2_Package_List.json',
+        '12 SP3': 'Suse_Linux_Enterprise_Server_12_SP3_Package_List.json'
     },
     'SUSE Package Hub': {
         'SLES 12 SP1': 'SUSE_Package_Hub_SLES_12_SP1.json',
-        'SLES 12 SP2': 'SUSE_Package_Hub_SLES_12_SP2.json'
+        'SLES 12 SP2': 'SUSE_Package_Hub_SLES_12_SP2.json',
+        'SLES 12 SP3': 'SUSE_Package_Hub_SLES_12_SP3.json'
     }
 }
 

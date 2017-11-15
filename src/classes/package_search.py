@@ -36,7 +36,7 @@ class PackageSearch:
         bitFlag = 1        
         distroRecord = {}
         for supportedDistroName in SUPPORTED_DISTROS.keys():
-            for distroVersion in SUPPORTED_DISTROS[supportedDistroName].keys():
+            for distroVersion in sorted(SUPPORTED_DISTROS[supportedDistroName].keys()):
                 if(not cls.DISTRO_BIT_MAP.has_key(supportedDistroName)):
                     cls.DISTRO_BIT_MAP[supportedDistroName] = {}
                 cls.DISTRO_BIT_MAP[supportedDistroName][distroVersion] = bitFlag
@@ -74,7 +74,7 @@ class PackageSearch:
         cachedPackage = {}
         
         for distroName in SUPPORTED_DISTROS.keys():
-            for distroVersion in SUPPORTED_DISTROS[distroName].keys():
+            for distroVersion in sorted(SUPPORTED_DISTROS[distroName].keys()):
                 distro_file = SUPPORTED_DISTROS[distroName][distroVersion]
             
                 package_info = json.load(open('%s/%s' % (data_dir, distro_file)))
